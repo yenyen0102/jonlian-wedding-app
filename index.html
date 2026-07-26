@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>婚宴現場桌位圖系統</title>
+  <title>婚宴現場桌位與報到系統</title>
   <style>
-    /* 全局樣式與手機優先重置 */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -24,7 +23,7 @@
 
     .header-info {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       cursor: pointer;
       user-select: none;
     }
@@ -32,15 +31,79 @@
     .header-info h1 {
       font-size: 1.2rem;
       color: #2c3e50;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .header-info p {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #7f8c8d;
     }
 
-    /* 頂部即時數據統計列 */
+    /* 頂部搜尋區域 */
+    .search-box-container {
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      border: 2px solid #3498db;
+      border-radius: 20px;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #2980b9;
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    /* 搜尋結果列表 */
+    .search-results {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin-bottom: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .search-card {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-card:last-child {
+      border-bottom: none;
+    }
+
+    .search-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-badge {
+      background-color: #e74c3c;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    /* 頂部統計儀表板 */
     .dashboard-bar {
       width: 100%;
       max-width: 500px;
@@ -66,20 +129,15 @@
     }
 
     .dash-item .val {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: bold;
       color: #2c3e50;
     }
 
-    .dash-item .val.highlight {
-      color: #27ae60;
-    }
+    .dash-item .val.highlight { color: #27ae60; }
+    .dash-item .val.gift-val { color: #e67e22; }
 
-    .dash-item .val.gift-val {
-      color: #e67e22;
-    }
-
-    /* 婚宴地圖主要外框 */
+    /* 婚宴地圖 */
     .venue-container {
       width: 100%;
       max-width: 500px;
@@ -91,7 +149,6 @@
       position: relative;
     }
 
-    /* CSS Grid 網格佈局 */
     .grid-map {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -101,7 +158,6 @@
       justify-items: center;
     }
 
-    /* 頂部地標：舞台、控臺 */
     .stage {
       grid-column: 2 / span 3;
       grid-row: 1;
@@ -128,7 +184,6 @@
       background: #ecf0f1;
     }
 
-    /* 主桌 */
     .main-table {
       grid-column: 3;
       grid-row: 2 / span 2;
@@ -181,7 +236,6 @@
       line-height: 1;
     }
 
-    /* 圓形桌位按鈕 */
     .table-btn {
       width: 48px;
       height: 48px;
@@ -237,10 +291,8 @@
     .modal-overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 1000;
       justify-content: center;
@@ -269,9 +321,7 @@
       align-items: center;
     }
 
-    .modal-header h2 {
-      font-size: 1.1rem;
-    }
+    .modal-header h2 { font-size: 1.1rem; }
 
     .close-btn {
       background: none;
@@ -296,9 +346,7 @@
       border-bottom: 1px solid #eee;
     }
 
-    .guest-item:last-child {
-      border-bottom: none;
-    }
+    .guest-item:last-child { border-bottom: none; }
 
     .guest-name {
       font-size: 0.95rem;
@@ -334,13 +382,21 @@
 </head>
 <body>
 
-  <!-- 標題區域 (連續點擊5下觸發更換連結) -->
+  <!-- 標題區域 -->
   <div class="header-info" id="headerTitle">
     <h1>婚宴招待桌位導覽地圖</h1>
-    <p>點擊桌號可開啟賓客點名；五連擊標題可設定資料庫</p>
+    <p>🔍 可在下方輸入姓名查桌號，或點擊桌號進行點名</p>
   </div>
 
-  <!-- 即時出席率與喜餅統計數據儀表板 -->
+  <!-- 賓客姓名快速搜尋列 -->
+  <div class="search-box-container">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 輸入賓客姓名搜尋桌號 (如：偉昌)..." oninput="handleSearch()">
+  </div>
+
+  <!-- 搜尋結果區 -->
+  <div class="search-results" id="searchResults"></div>
+
+  <!-- 數據統計 -->
   <div class="dashboard-bar">
     <div class="dash-item">
       <div class="label">總應到人數</div>
@@ -356,9 +412,9 @@
     </div>
   </div>
 
+  <!-- 桌位圖區域 -->
   <div class="venue-container">
     <div class="grid-map">
-      
       <div class="control-desk">控臺</div>
       <div class="stage">舞 臺</div>
 
@@ -401,49 +457,27 @@
       <button class="table-btn" style="grid-column: 2; grid-row: 8;" onclick="openTableModal('12')">12</button>
 
       <div class="buffet">備餐臺</div>
-
     </div>
 
     <div class="welcome-area">👈 迎賓送客區 / 新娘休息室</div>
   </div>
 
-  <!-- Modal 視窗 -->
+  <!-- Modal 彈窗 -->
   <div class="modal-overlay" id="tableModal">
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modalTitle">第 XX 桌賓客名單</h2>
         <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
-      <div class="modal-body" id="modalBody">
-        <!-- 動態渲染 -->
-      </div>
+      <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
-  <!-- 引入 Firebase v9+ Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.app.js";
-
-    // 預設 Firebase 連結
+  <!-- 原生基礎邏輯腳本 (確保無網路時本地點擊也能 100% 運作) -->
+  <script>
     const DEFAULT_DB_URL = "https://jonlian-wedding-app-default-rtdb.asia-southeast1.firebasedatabase.app/";
-    
-    // 優先讀取 LocalStorage 或使用預設網址
     let currentDbUrl = localStorage.getItem("wedding_firebase_url") || DEFAULT_DB_URL;
 
-    // 初始化 Firebase
-    let app, db;
-    function initFirebase(databaseURL) {
-      try {
-        app = initializeApp({ databaseURL }, "weddingApp_" + Date.now());
-        db = getDatabase(app);
-        listenToFirebase();
-      } catch (err) {
-        console.error("Firebase 初始化失敗:", err);
-      }
-    }
-
-    // 原始賓客清單數據
     const rawGuestList = [
       { name: "新郎", table: "01" }, { name: "新娘", table: "01" }, { name: "新郎媽媽", table: "01" },
       { name: "昶佑外公", table: "01" }, { name: "昶佑外婆", table: "01" }, { name: "江偉昌", table: "01" },
@@ -525,8 +559,9 @@
       { name: "邱彥瑋", table: "25" }, { name: "邱主竭(小孩)", table: "25" }
     ];
 
-    // 初始化本地預設賓客結構
     const guestsData = {};
+    let currentOpenTable = null;
+
     function initBaseData() {
       for (let i = 1; i <= 27; i++) {
         const tableKey = i < 10 ? '0' + i : '' + i;
@@ -537,6 +572,7 @@
         if (guestsData[guest.table]) {
           guestsData[guest.table].push({
             id: `g_${guest.table}_${index}`,
+            table: guest.table,
             name: guest.name,
             isBackup: false,
             checkedIn: false,
@@ -555,6 +591,7 @@
           for (let b = 1; b <= 11; b++) {
             guestsData[tableKey].push({
               id: `g_${tableKey}_b${b}`,
+              table: tableKey,
               name: `${i}桌預備位 ${b}`,
               isBackup: true,
               checkedIn: false,
@@ -567,6 +604,7 @@
             const label = (i === 1) ? `主桌預備位 ${b}` : `第 ${i} 桌預備位 ${b}`;
             guestsData[tableKey].push({
               id: `g_${tableKey}_b${b}`,
+              table: tableKey,
               name: label,
               isBackup: true,
               checkedIn: false,
@@ -579,15 +617,148 @@
 
     initBaseData();
 
-    let currentOpenTable = null;
+    function updateDashboard() {
+      let total = 0, checkedIn = 0, gifts = 0;
+      Object.keys(guestsData).forEach((t) => {
+        guestsData[t].forEach((g) => {
+          total++;
+          if (g.checkedIn) checkedIn++;
+          if (g.gotGift) gifts++;
+        });
+      });
+      const rate = total > 0 ? ((checkedIn / total) * 100).toFixed(1) : 0;
+      document.getElementById('statTotal').innerText = `${total} 人`;
+      document.getElementById('statCheckedIn').innerText = `${checkedIn} 人 (${rate}%)`;
+      document.getElementById('statGift').innerText = `${gifts} 份`;
+    }
 
-    // 監聽 Firebase 數據變動
-    function listenToFirebase() {
+    function openTableModal(tableNum) {
+      currentOpenTable = tableNum;
+      const modal = document.getElementById('tableModal');
+      const title = document.getElementById('modalTitle');
+      title.innerText = (tableNum === '01') ? '1 主桌 賓客名單' : `第 ${parseInt(tableNum)} 桌 賓客名單`;
+      renderModalBody(tableNum);
+      modal.style.display = 'flex';
+    }
+
+    function renderModalBody(tableNum) {
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      const list = guestsData[tableNum] || [];
+
+      list.forEach((guest) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'guest-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'guest-name' + (guest.isBackup ? ' backup-guest' : '');
+        nameSpan.innerText = guest.name;
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'checkbox-group';
+
+        const labelCheckIn = document.createElement('label');
+        labelCheckIn.className = 'checkbox-label';
+        const inputCheckIn = document.createElement('input');
+        inputCheckIn.type = 'checkbox';
+        inputCheckIn.checked = guest.checkedIn;
+        inputCheckIn.onchange = (e) => window.triggerStatusUpdate(guest.id, 'checkedIn', e.target.checked);
+        labelCheckIn.appendChild(inputCheckIn);
+        labelCheckIn.appendChild(document.createTextNode('已報到'));
+
+        const labelGift = document.createElement('label');
+        labelGift.className = 'checkbox-label';
+        const inputGift = document.createElement('input');
+        inputGift.type = 'checkbox';
+        inputGift.checked = guest.gotGift;
+        inputGift.onchange = (e) => window.triggerStatusUpdate(guest.id, 'gotGift', e.target.checked);
+        labelGift.appendChild(inputGift);
+        labelGift.appendChild(document.createTextNode('已領喜餅'));
+
+        groupDiv.appendChild(labelCheckIn);
+        groupDiv.appendChild(labelGift);
+
+        itemDiv.appendChild(nameSpan);
+        itemDiv.appendChild(groupDiv);
+        body.appendChild(itemDiv);
+      });
+    }
+
+    function closeModal() {
+      document.getElementById('tableModal').style.display = 'none';
+      currentOpenTable = null;
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('tableModal');
+      if (event.target === modal) closeModal();
+    };
+
+    // 即時搜尋功能
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const resultsDiv = document.getElementById('searchResults');
+      
+      if (query === "") {
+        resultsDiv.style.display = "none";
+        resultsDiv.innerHTML = "";
+        return;
+      }
+
+      let matches = [];
+      Object.keys(guestsData).forEach((tableKey) => {
+        guestsData[tableKey].forEach((g) => {
+          if (!g.isBackup && g.name.toLowerCase().includes(query)) {
+            matches.push(g);
+          }
+        });
+      });
+
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = `<div style="padding:12px; text-align:center; color:#888;">查無名為「${query}」的賓客</div>`;
+      } else {
+        resultsDiv.innerHTML = "";
+        matches.forEach((g) => {
+          const card = document.createElement('div');
+          card.className = 'search-card';
+
+          const tableDisplay = g.table === '01' ? '主桌' : `${parseInt(g.table)}桌`;
+          card.innerHTML = `
+            <div class="search-info">
+              <span class="table-badge">${tableDisplay}</span>
+              <span style="font-weight:bold;">${g.name}</span>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" ${g.checkedIn ? 'checked' : ''} onchange="window.triggerStatusUpdate('${g.id}', 'checkedIn', this.checked)"> 已報到
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" ${g.gotGift ? 'checked' : ''} onchange="window.triggerStatusUpdate('${g.id}', 'gotGift', this.checked)"> 已領喜餅
+              </label>
+            </div>
+          `;
+          resultsDiv.appendChild(card);
+        });
+      }
+      resultsDiv.style.display = "block";
+    }
+
+    updateDashboard();
+  </script>
+
+  <!-- 雲端同步 Firebase 模組 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.app.js";
+
+    let db;
+    try {
+      const app = initializeApp({ databaseURL: currentDbUrl });
+      db = getDatabase(app);
+
       const guestsRef = ref(db, 'guestsState');
       onValue(guestsRef, (snapshot) => {
         const remoteData = snapshot.val() || {};
-
-        // 將雲端狀態套用回 guestsData
         Object.keys(guestsData).forEach((tableKey) => {
           guestsData[tableKey].forEach((guest) => {
             if (remoteData[guest.id]) {
@@ -597,154 +768,29 @@
           });
         });
 
-        // 即時計算出席與喜餅發放率
         updateDashboard();
-
-        // 若目前彈出視窗開著，同步重新渲染內容
-        if (currentOpenTable) {
-          renderModalBody(currentOpenTable);
-        }
+        if (currentOpenTable) renderModalBody(currentOpenTable);
+        if (document.getElementById('searchInput').value.trim() !== "") handleSearch();
       });
+    } catch (e) {
+      console.warn("Firebase 未能連線，已啟用本地點名模式:", e);
     }
 
-    // 更新儀表板統計
-    function updateDashboard() {
-      let total = 0;
-      let checkedIn = 0;
-      let gifts = 0;
-
-      Object.keys(guestsData).forEach((t) => {
-        guestsData[t].forEach((g) => {
-          total++;
-          if (g.checkedIn) checkedIn++;
-          if (g.gotGift) gifts++;
-        });
+    window.triggerStatusUpdate = function(guestId, field, val) {
+      // 先更動本地
+      Object.keys(guestsData).forEach((tableKey) => {
+        const target = guestsData[tableKey].find(g => g.id === guestId);
+        if (target) target[field] = val;
       });
+      updateDashboard();
 
-      const rate = total > 0 ? ((checkedIn / total) * 100).toFixed(1) : 0;
-
-      document.getElementById('statTotal').innerText = `${total} 人`;
-      document.getElementById('statCheckedIn').innerText = `${checkedIn} 人 (${rate}%)`;
-      document.getElementById('statGift').innerText = `${gifts} 份`;
-    }
-
-    // 更新 Firebase 雲端狀態
-    window.updateGuestStatus = function(guestId, field, val) {
-      const guestRef = ref(db, `guestsState/${guestId}`);
-      const updateObj = {};
-      updateObj[field] = val;
-      update(guestRef, updateObj).catch((err) => {
-        console.error("更新至 Firebase 失敗:", err);
-      });
-    };
-
-    // Modal 彈出視窗與互動處理
-    window.openTableModal = function(tableNum) {
-      currentOpenTable = tableNum;
-      const modal = document.getElementById('tableModal');
-      const title = document.getElementById('modalTitle');
-
-      title.innerText = (tableNum === '01') ? '1 主桌 賓客名單' : `第 ${parseInt(tableNum)} 桌 賓客名單`;
-      renderModalBody(tableNum);
-      modal.style.display = 'flex';
-    };
-
-    function renderModalBody(tableNum) {
-      const body = document.getElementById('modalBody');
-      body.innerHTML = '';
-      const list = guestsData[tableNum] || [];
-
-      if (list.length === 0) {
-        body.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">本桌暫無資料</div>';
-      } else {
-        list.forEach((guest) => {
-          const itemDiv = document.createElement('div');
-          itemDiv.className = 'guest-item';
-
-          // 點擊姓名文字可切換已報到
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'guest-name' + (guest.isBackup ? ' backup-guest' : '');
-          nameSpan.innerText = guest.name;
-          nameSpan.style.cursor = 'pointer';
-          nameSpan.title = '點擊切換報到狀態';
-          nameSpan.onclick = () => {
-            const nextState = !guest.checkedIn;
-            window.updateGuestStatus(guest.id, 'checkedIn', nextState);
-          };
-
-          const groupDiv = document.createElement('div');
-          groupDiv.className = 'checkbox-group';
-
-          // 已報到 Checkbox
-          const labelCheckIn = document.createElement('label');
-          labelCheckIn.className = 'checkbox-label';
-          const inputCheckIn = document.createElement('input');
-          inputCheckIn.type = 'checkbox';
-          inputCheckIn.checked = guest.checkedIn;
-          inputCheckIn.onchange = (e) => {
-            window.updateGuestStatus(guest.id, 'checkedIn', e.target.checked);
-          };
-          labelCheckIn.appendChild(inputCheckIn);
-          labelCheckIn.appendChild(document.createTextNode('已報到'));
-
-          // 已領喜餅 Checkbox
-          const labelGift = document.createElement('label');
-          labelGift.className = 'checkbox-label';
-          const inputGift = document.createElement('input');
-          inputGift.type = 'checkbox';
-          inputGift.checked = guest.gotGift;
-          inputGift.onchange = (e) => {
-            window.updateGuestStatus(guest.id, 'gotGift', e.target.checked);
-          };
-          labelGift.appendChild(inputGift);
-          labelGift.appendChild(document.createTextNode('已領喜餅'));
-
-          groupDiv.appendChild(labelCheckIn);
-          groupDiv.appendChild(labelGift);
-
-          itemDiv.appendChild(nameSpan);
-          itemDiv.appendChild(groupDiv);
-          body.appendChild(itemDiv);
-        });
-      }
-    }
-
-    window.closeModal = function() {
-      document.getElementById('tableModal').style.display = 'none';
-      currentOpenTable = null;
-    };
-
-    window.onclick = function(event) {
-      const modal = document.getElementById('tableModal');
-      if (event.target === modal) {
-        window.closeModal();
+      // 同步雲端
+      if (db) {
+        const guestRef = ref(db, `guestsState/${guestId}`);
+        const obj = {}; obj[field] = val;
+        update(guestRef, obj);
       }
     };
-
-    // 隱藏彩蛋：連點 5 下標題開啟 Firebase 設定
-    let clickCount = 0;
-    let clickTimer = null;
-    document.getElementById('headerTitle').onclick = function() {
-      clickCount++;
-      clearTimeout(clickTimer);
-      if (clickCount >= 5) {
-        clickCount = 0;
-        const newUrl = prompt("【隱藏設定】請輸入您的 Firebase Realtime Database 連結：", currentDbUrl);
-        if (newUrl && newUrl.trim() !== "") {
-          const cleanUrl = newUrl.trim();
-          localStorage.setItem("wedding_firebase_url", cleanUrl);
-          alert("Firebase 連結已成功更新！網頁將重新載入。");
-          window.location.reload();
-        }
-      } else {
-        clickTimer = setTimeout(() => {
-          clickCount = 0;
-        }, 1200);
-      }
-    };
-
-    // 啟動 Firebase 服務
-    initFirebase(currentDbUrl);
   </script>
 
 </body>
