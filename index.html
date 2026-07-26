@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>婚宴現場桌位圖系統</title>
+  <style>
+    /* 全局樣式與手機優先重置 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      color: #333;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header-info {
+      text-align: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .header-info h1 {
+      font-size: 1.2rem;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+
+    .header-info p {
+      font-size: 0.8rem;
+      color: #7f8c8d;
+    }
+
+    /* 頂部即時數據統計列 */
+    .dashboard-bar {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border: 1px solid #dcdfe6;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .dash-item {
+      text-align: center;
+    }
+
+    .dash-item .label {
+      font-size: 0.75rem;
+      color: #606266;
+      margin-bottom: 2px;
+    }
+
+    .dash-item .val {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .dash-item .val.highlight {
+      color: #27ae60;
+    }
+
+    .dash-item .val.gift-val {
+      color: #e67e22;
+    }
+
+    /* 婚宴地圖主要外框 */
+    .venue-container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border: 2px solid #2c3e50;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* CSS Grid 網格佈局 */
+    .grid-map {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-auto-rows: minmax(42px, auto);
+      gap: 8px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    /* 頂部地標：舞台、控臺 */
+    .stage {
+      grid-column: 2 / span 3;
+      grid-row: 1;
+      width: 100%;
+      height: 45px;
+      background-color: #34495e;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+
+    .control-desk {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 0.75rem;
+      border: 1px solid #7f8c8d;
+      padding: 4px;
+      border-radius: 4px;
+      background: #ecf0f1;
+    }
+
+    /* 主桌 */
+    .main-table {
+      grid-column: 3;
+      grid-row: 2 / span 2;
+      width: 68px;
+      height: 68px;
+      background-color: #e74c3c;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+      cursor: pointer;
+      border: 2px solid #c0392b;
+    }
+
+    .buffet {
+      grid-column: 4 / span 2;
+      grid-row: 8;
+      width: 100%;
+      height: 36px;
+      background: #bdc3c7;
+      border: 1px dashed #7f8c8d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #2c3e50;
+      border-radius: 4px;
+    }
+
+    .aisle-arrow {
+      grid-column: 3;
+      grid-row: 4 / span 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #e67e22;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    .aisle-arrow::before {
+      content: "↑";
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    /* 圓形桌位按鈕 */
+    .table-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #3498db;
+      background-color: #ebf5fb;
+      color: #2980b9;
+      font-weight: bold;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .table-btn:active {
+      transform: scale(0.92);
+      background-color: #3498db;
+      color: #fff;
+    }
+
+    .table-btn.backup-table {
+      border-color: #f39c12;
+      background-color: #fef9e7;
+      color: #d35400;
+    }
+
+    .table-btn.backup-table::after {
+      content: "預備";
+      font-size: 0.6rem;
+      font-weight: normal;
+      margin-top: -2px;
+    }
+
+    .welcome-area {
+      margin-top: 10px;
+      width: 100%;
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      border-radius: 4px;
+    }
+
+    /* Modal 視窗 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      max-height: 85vh;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      background-color: #2c3e50;
+      color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.1rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 12px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .guest-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .guest-item:last-child {
+      border-bottom: none;
+    }
+
+    .guest-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .guest-name.backup-guest {
+      color: #e67e22;
+      font-style: italic;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #555;
+    }
+
+    .checkbox-label input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 標題區域 (連續點擊5下觸發更換連結) -->
+  <div class="header-info" id="headerTitle">
+    <h1>婚宴招待桌位導覽地圖</h1>
+    <p>點擊桌號可開啟賓客點名；五連擊標題可設定資料庫</p>
+  </div>
+
+  <!-- 即時出席率與喜餅統計數據儀表板 -->
+  <div class="dashboard-bar">
+    <div class="dash-item">
+      <div class="label">總應到人數</div>
+      <div class="val" id="statTotal">0</div>
+    </div>
+    <div class="dash-item">
+      <div class="label">已報到 (出席率)</div>
+      <div class="val highlight" id="statCheckedIn">0 (0%)</div>
+    </div>
+    <div class="dash-item">
+      <div class="label">喜餅已發放</div>
+      <div class="val gift-val" id="statGift">0</div>
+    </div>
+  </div>
+
+  <div class="venue-container">
+    <div class="grid-map">
+      
+      <div class="control-desk">控臺</div>
+      <div class="stage">舞 臺</div>
+
+      <div class="main-table" onclick="openTableModal('01')">1 主桌</div>
+
+      <button class="table-btn" style="grid-column: 1; grid-row: 3;" onclick="openTableModal('02')">02</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 3;" onclick="openTableModal('03')">03</button>
+      
+      <button class="table-btn" style="grid-column: 1; grid-row: 4;" onclick="openTableModal('04')">04</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 4;" onclick="openTableModal('05')">05</button>
+      
+      <button class="table-btn" style="grid-column: 1; grid-row: 5;" onclick="openTableModal('06')">06</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 5;" onclick="openTableModal('07')">07</button>
+
+      <div class="aisle-arrow">進場</div>
+
+      <button class="table-btn" style="grid-column: 4; grid-row: 3;" onclick="openTableModal('13')">13</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 3;" onclick="openTableModal('14')">14</button>
+      
+      <button class="table-btn" style="grid-column: 4; grid-row: 4;" onclick="openTableModal('16')">16</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 4;" onclick="openTableModal('17')">17</button>
+      
+      <button class="table-btn" style="grid-column: 3; grid-row: 5;" onclick="openTableModal('19')">19</button>
+      <button class="table-btn" style="grid-column: 4; grid-row: 5;" onclick="openTableModal('20')">20</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 5;" onclick="openTableModal('21')">21</button>
+      
+      <button class="table-btn" style="grid-column: 3; grid-row: 6;" onclick="openTableModal('22')">22</button>
+      <button class="table-btn" style="grid-column: 4; grid-row: 6;" onclick="openTableModal('23')">23</button>
+      <button class="table-btn backup-table" style="grid-column: 5; grid-row: 6;" onclick="openTableModal('27')">27</button>
+      
+      <button class="table-btn" style="grid-column: 3; grid-row: 7;" onclick="openTableModal('24')">24</button>
+      <button class="table-btn" style="grid-column: 4; grid-row: 7;" onclick="openTableModal('25')">25</button>
+      <button class="table-btn backup-table" style="grid-column: 5; grid-row: 7;" onclick="openTableModal('26')">26</button>
+
+      <button class="table-btn" style="grid-column: 1; grid-row: 6;" onclick="openTableModal('08')">08</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 6;" onclick="openTableModal('09')">09</button>
+      
+      <button class="table-btn" style="grid-column: 2; grid-row: 7;" onclick="openTableModal('10')">10</button>
+      <button class="table-btn" style="grid-column: 1; grid-row: 8;" onclick="openTableModal('11')">11</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 8;" onclick="openTableModal('12')">12</button>
+
+      <div class="buffet">備餐臺</div>
+
+    </div>
+
+    <div class="welcome-area">👈 迎賓送客區 / 新娘休息室</div>
+  </div>
+
+  <!-- Modal 視窗 -->
+  <div class="modal-overlay" id="tableModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">第 XX 桌賓客名單</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- 動態渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入 Firebase v9+ Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.app.js";
+
+    // 預設 Firebase 連結
+    const DEFAULT_DB_URL = "https://jonlian-wedding-app-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    
+    // 優先讀取 LocalStorage 或使用預設網址
+    let currentDbUrl = localStorage.getItem("wedding_firebase_url") || DEFAULT_DB_URL;
+
+    // 初始化 Firebase
+    let app, db;
+    function initFirebase(databaseURL) {
+      try {
+        app = initializeApp({ databaseURL }, "weddingApp_" + Date.now());
+        db = getDatabase(app);
+        listenToFirebase();
+      } catch (err) {
+        console.error("Firebase 初始化失敗:", err);
+      }
+    }
+
+    // 原始賓客清單數據
+    const rawGuestList = [
+      { name: "新郎", table: "01" }, { name: "新娘", table: "01" }, { name: "新郎媽媽", table: "01" },
+      { name: "昶佑外公", table: "01" }, { name: "昶佑外婆", table: "01" }, { name: "江偉昌", table: "01" },
+      { name: "洪宜均", table: "01" }, { name: "新娘媽媽", table: "01" }, { name: "新娘爸爸", table: "01" },
+      { name: "新娘阿嬤", table: "01" }, { name: "新娘阿公", table: "01" }, { name: "新娘舅舅", table: "01" },
+      { name: "簡凡恩", table: "02" }, { name: "簡予希", table: "02" }, { name: "洪耿強", table: "02" },
+      { name: "江晟愷", table: "02" }, { name: "江芯辰", table: "02" }, { name: "大姑姑", table: "02" },
+      { name: "球球", table: "02" }, { name: "新郎弟弟", table: "02" },
+      { name: "Vivi阿姨", table: "03" }, { name: "簡士祥", table: "03" }, { name: "Kimi 阿姨", table: "03" },
+      { name: "吳叔叔(Kimi 阿姨老公)", table: "03" }, { name: "偉益舅舅", table: "03" }, { name: "阿丁", table: "03" },
+      { name: "瑞雲", table: "04" }, { name: "黃哥", table: "04" }, { name: "黃姊", table: "04" },
+      { name: "林哥", table: "04" }, { name: "林姐", table: "04" }, { name: "淑慎", table: "04" },
+      { name: "鈴莉", table: "04" }, { name: "麗文", table: "04" }, { name: "鵬程", table: "04" }, { name: "佩伶", table: "04" },
+      { name: "紅魚", table: "05" }, { name: "王澤倫(紅魚老公)", table: "05" }, { name: "謝書豪", table: "05" },
+      { name: "周宛瑩", table: "05" }, { name: "王冠軒", table: "05" }, { name: "許瑜瑄", table: "05" },
+      { name: "郭宣廷(瑜瑄男友)", table: "05" }, { name: "鄧敏如", table: "05" }, { name: "黃天羽", table: "05" }, { name: "馮全", table: "05" },
+      { name: "江淑鶯(大姐牧師)", table: "06" }, { name: "盧文儀牧師", table: "06" }, { name: "盧文儀家人", table: "06" },
+      { name: "張雅筠", table: "06" }, { name: "鳳生區牧", table: "06" }, { name: "古姐", table: "06" },
+      { name: "呂哥(古姊老公)", table: "06" }, { name: "古姊家人1", table: "06" }, { name: "古姊家人2", table: "06" }, { name: "古姊家人3", table: "06" },
+      { name: "Aldvin Derrick(楊金高)", table: "07" }, { name: "Grace(汪彤)", table: "07" }, { name: "Yunching(黃筠卿)", table: "07" },
+      { name: "Alice(劉愛慈)", table: "07" }, { name: "呂凱立", table: "07" }, { name: "Naomi", table: "07" },
+      { name: "黃姿穎", table: "07" }, { name: "李珮毓", table: "07" },
+      { name: "趙偉成(Peter)", table: "08" }, { name: "陳怡怜", table: "08" }, { name: "吳宏祺(Alex)", table: "08" },
+      { name: "張豫慧", table: "08" }, { name: "李珮菁", table: "08" }, { name: "賴秋玲", table: "08" },
+      { name: "許家鳳", table: "08" }, { name: "廖學敏", table: "08" }, { name: "陳曉平Aiko", table: "08" }, { name: "陳曉平朋友", table: "08" },
+      { name: "高廉程", table: "09" }, { name: "Elva", table: "09" }, { name: "Minnie", table: "09" },
+      { name: "龍辭鈞", table: "09" }, { name: "IVY", table: "09" }, { name: "董佳音", table: "09" },
+      { name: "羅正", table: "09" }, { name: "劉慧怡(Kay)", table: "09" }, { name: "傅毓庭", table: "09" }, { name: "陳穎文", table: "09" },
+      { name: "倪士杰", table: "10" }, { name: "麥豪麟", table: "10" }, { name: "戴詩庭", table: "10" },
+      { name: "李詠絮", table: "10" }, { name: "祈偉", table: "10" }, { name: "陳偉立", table: "10" },
+      { name: "沈庭瑀", table: "10" }, { name: "魏弘傑", table: "10" }, { name: "崔廼萱", table: "10" }, { name: "李碩傑(Nick)", table: "10" },
+      { name: "曾珮瑜", table: "11" }, { name: "陳煜君", table: "11" }, { name: "吳家竹", table: "11" },
+      { name: "馬弘昇", table: "11" }, { name: "馬星湘(小孩)", table: "11" }, { name: "林昱汝", table: "11" },
+      { name: "賴薇竹", table: "11" }, { name: "魏郁珈", table: "11" }, { name: "黃沐涵", table: "11" },
+      { name: "林奕", table: "11" }, { name: "巫明舉", table: "11" },
+      { name: "廖政威", table: "12" }, { name: "林佳瑜", table: "12" }, { name: "林牧翰", table: "12" },
+      { name: "吳仁傑", table: "12" }, { name: "張怡親", table: "12" }, { name: "張家鳴", table: "12" },
+      { name: "趙育進", table: "12" }, { name: "張耀宇", table: "12" }, { name: "林威州", table: "12" }, { name: "劉遠楨教授*", table: "12" },
+      { name: "陳偉盛", table: "13" }, { name: "洪宜君", table: "13" }, { name: "陳姿妍(小孩)", table: "13" },
+      { name: "陳泠君", table: "13" }, { name: "謝宗穎", table: "13" }, { name: "蔡瑞鳳", table: "13" },
+      { name: "尤惠明", table: "13" }, { name: "蔡瑞龍", table: "13" }, { name: "南靜婷", table: "13" }, { name: "蔡宜臻", table: "13" },
+      { name: "陳柏男", table: "14" }, { name: "黃淑娟", table: "14" }, { name: "陳羿妃(小孩)", table: "14" },
+      { name: "陳楷丞(小孩)", table: "14" }, { name: "蔡佾璋", table: "14" }, { name: "邱淑瑜", table: "14" },
+      { name: "蔡淑惠", table: "14" }, { name: "蔡春財", table: "14" }, { name: "許秀英", table: "14" },
+      { name: "黃耀增", table: "15" }, { name: "周彥岭", table: "15" }, { name: "張亦舒", table: "15" },
+      { name: "楊佳欣", table: "15" }, { name: "魏巧宜", table: "15" }, { name: "張雅雪", table: "15" },
+      { name: "張小妹", table: "15" }, { name: "林曉怡", table: "15" }, { name: "陳佩璇", table: "15" }, { name: "陳佩璇小孩", table: "15" },
+      { name: "陳澤山", table: "16" }, { name: "陳柏瑋", table: "16" }, { name: "陳宜歆", table: "16" },
+      { name: "陳煜棠(小孩)", table: "16" }, { name: "陳澤泰", table: "16" }, { name: "林素貞", table: "16" },
+      { name: "陳佳欣", table: "16" }, { name: "陳澤春", table: "16" },
+      { name: "蔡淑娟", table: "17" }, { name: "吳民治", table: "17" }, { name: "吳品臻(小孩)", table: "17" },
+      { name: "吳品曈(小孩)", table: "17" }, { name: "江麗華", table: "17" }, { name: "莉亞", table: "17" },
+      { name: "蔡政勳", table: "17" }, { name: "李昀蔚", table: "17" }, { name: "蔡承佑(小孩)", table: "17" }, { name: "蔡宸叡(小孩)", table: "17" },
+      { name: "陳美凰", table: "18" }, { name: "張正庭", table: "18" }, { name: "陳立婷", table: "18" },
+      { name: "楊朝勇", table: "18" }, { name: "楊佩臻", table: "18" }, { name: "楊佩蓉", table: "18" },
+      { name: "蔡淑玲", table: "18" }, { name: "何振強", table: "18" }, { name: "何珞語(小孩)", table: "18" }, { name: "何浩語(小孩)", table: "18" },
+      { name: "江昱德", table: "19" }, { name: "林怡萱", table: "19" }, { name: "黃俞嘉", table: "19" },
+      { name: "陳東隆", table: "19" }, { name: "鄭珍宜", table: "19" }, { name: "周采蓉", table: "19" },
+      { name: "薛宇哲", table: "19" }, { name: "朱孟庭", table: "19" }, { name: "曹逸伶", table: "19" },
+      { name: "程以婷", table: "20" }, { name: "簡秀梅", table: "20" }, { name: "鄧玉秋", table: "20" },
+      { name: "吳思瑾", table: "20" }, { name: "吳慧珍", table: "20" }, { name: "許雅苓", table: "20" },
+      { name: "傅俊凱", table: "20" }, { name: "賴映辰", table: "20" }, { name: "廖韻恩", table: "20" }, { name: "陳佳琳", table: "20" },
+      { name: "符明勝", table: "21" }, { name: "廖凰吟", table: "21" }, { name: "陳鏡芬", table: "21" },
+      { name: "連聖義", table: "21" }, { name: "郭憶婷", table: "21" }, { name: "楊月賢", table: "21" },
+      { name: "陳為秀", table: "21" }, { name: "陳秀麗", table: "21" }, { name: "黃瑞雪", table: "21" },
+      { name: "廖欣怡", table: "22" }, { name: "蔡家瑋", table: "22" }, { name: "席佩雯(小囓)", table: "22" },
+      { name: "黃聖翔", table: "22" }, { name: "李旻暄", table: "22" }, { name: "黃喜&黃盼", table: "22" },
+      { name: "鄭伃婷", table: "22" }, { name: "大江榮年", table: "22" }, { name: "鍾沛奇", table: "22" },
+      { name: "賴培修", table: "22" }, { name: "李思樺", table: "22" },
+      { name: "謝育珊", table: "23" }, { name: "劉祐豪", table: "23" }, { name: "周宇倫", table: "23" },
+      { name: "林佳誼", table: "23" }, { name: "陳怡仲", table: "23" }, { name: "Linda", table: "23" },
+      { name: "李念慈", table: "23" }, { name: "黃敬惠", table: "23" }, { name: "温羿婷", table: "23" }, { name: "陳文晴", table: "23" },
+      { name: "黃品繻", table: "24" }, { name: "楊鎭源", table: "24" }, { name: "陳冠傑", table: "24" },
+      { name: "張家荃", table: "24" }, { name: "游俊旗", table: "24" }, { name: "顧桂榮", table: "24" },
+      { name: "陳以理", table: "24" }, { name: "陳奎延", table: "24" }, { name: "程珮綸(Una)", table: "24" }, { name: "林永約", table: "24" },
+      { name: "許夏賓", table: "25" }, { name: "林吟潔", table: "25" }, { name: "鄭歆樺", table: "25" },
+      { name: "葉頌興", table: "25" }, { name: "陳乙瑄", table: "25" }, { name: "林秋冠", table: "25" },
+      { name: "鄭淑芬", table: "25" }, { name: "陳威勳", table: "25" }, { name: "黃巧馨", table: "25" },
+      { name: "邱彥瑋", table: "25" }, { name: "邱主竭(小孩)", table: "25" }
+    ];
+
+    // 初始化本地預設賓客結構
+    const guestsData = {};
+    function initBaseData() {
+      for (let i = 1; i <= 27; i++) {
+        const tableKey = i < 10 ? '0' + i : '' + i;
+        guestsData[tableKey] = [];
+      }
+
+      rawGuestList.forEach((guest, index) => {
+        if (guestsData[guest.table]) {
+          guestsData[guest.table].push({
+            id: `g_${guest.table}_${index}`,
+            name: guest.name,
+            isBackup: false,
+            checkedIn: false,
+            gotGift: false
+          });
+        }
+      });
+
+      for (let i = 1; i <= 27; i++) {
+        const tableKey = i < 10 ? '0' + i : '' + i;
+        const maxCapacity = (i === 1) ? 12 : 11;
+        const currentCount = guestsData[tableKey].length;
+
+        if (i === 26 || i === 27) {
+          guestsData[tableKey] = [];
+          for (let b = 1; b <= 11; b++) {
+            guestsData[tableKey].push({
+              id: `g_${tableKey}_b${b}`,
+              name: `${i}桌預備位 ${b}`,
+              isBackup: true,
+              checkedIn: false,
+              gotGift: false
+            });
+          }
+        } else if (currentCount < maxCapacity) {
+          const needBackup = maxCapacity - currentCount;
+          for (let b = 1; b <= needBackup; b++) {
+            const label = (i === 1) ? `主桌預備位 ${b}` : `第 ${i} 桌預備位 ${b}`;
+            guestsData[tableKey].push({
+              id: `g_${tableKey}_b${b}`,
+              name: label,
+              isBackup: true,
+              checkedIn: false,
+              gotGift: false
+            });
+          }
+        }
+      }
+    }
+
+    initBaseData();
+
+    let currentOpenTable = null;
+
+    // 監聽 Firebase 數據變動
+    function listenToFirebase() {
+      const guestsRef = ref(db, 'guestsState');
+      onValue(guestsRef, (snapshot) => {
+        const remoteData = snapshot.val() || {};
+
+        // 將雲端狀態套用回 guestsData
+        Object.keys(guestsData).forEach((tableKey) => {
+          guestsData[tableKey].forEach((guest) => {
+            if (remoteData[guest.id]) {
+              guest.checkedIn = !!remoteData[guest.id].checkedIn;
+              guest.gotGift = !!remoteData[guest.id].gotGift;
+            }
+          });
+        });
+
+        // 即時計算出席與喜餅發放率
+        updateDashboard();
+
+        // 若目前彈出視窗開著，同步重新渲染內容
+        if (currentOpenTable) {
+          renderModalBody(currentOpenTable);
+        }
+      });
+    }
+
+    // 更新儀表板統計
+    function updateDashboard() {
+      let total = 0;
+      let checkedIn = 0;
+      let gifts = 0;
+
+      Object.keys(guestsData).forEach((t) => {
+        guestsData[t].forEach((g) => {
+          total++;
+          if (g.checkedIn) checkedIn++;
+          if (g.gotGift) gifts++;
+        });
+      });
+
+      const rate = total > 0 ? ((checkedIn / total) * 100).toFixed(1) : 0;
+
+      document.getElementById('statTotal').innerText = `${total} 人`;
+      document.getElementById('statCheckedIn').innerText = `${checkedIn} 人 (${rate}%)`;
+      document.getElementById('statGift').innerText = `${gifts} 份`;
+    }
+
+    // 更新 Firebase 雲端狀態
+    window.updateGuestStatus = function(guestId, field, val) {
+      const guestRef = ref(db, `guestsState/${guestId}`);
+      const updateObj = {};
+      updateObj[field] = val;
+      update(guestRef, updateObj).catch((err) => {
+        console.error("更新至 Firebase 失敗:", err);
+      });
+    };
+
+    // Modal 彈出視窗與互動處理
+    window.openTableModal = function(tableNum) {
+      currentOpenTable = tableNum;
+      const modal = document.getElementById('tableModal');
+      const title = document.getElementById('modalTitle');
+
+      title.innerText = (tableNum === '01') ? '1 主桌 賓客名單' : `第 ${parseInt(tableNum)} 桌 賓客名單`;
+      renderModalBody(tableNum);
+      modal.style.display = 'flex';
+    };
+
+    function renderModalBody(tableNum) {
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      const list = guestsData[tableNum] || [];
+
+      if (list.length === 0) {
+        body.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">本桌暫無資料</div>';
+      } else {
+        list.forEach((guest) => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'guest-item';
+
+          // 點擊姓名文字可切換已報到
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'guest-name' + (guest.isBackup ? ' backup-guest' : '');
+          nameSpan.innerText = guest.name;
+          nameSpan.style.cursor = 'pointer';
+          nameSpan.title = '點擊切換報到狀態';
+          nameSpan.onclick = () => {
+            const nextState = !guest.checkedIn;
+            window.updateGuestStatus(guest.id, 'checkedIn', nextState);
+          };
+
+          const groupDiv = document.createElement('div');
+          groupDiv.className = 'checkbox-group';
+
+          // 已報到 Checkbox
+          const labelCheckIn = document.createElement('label');
+          labelCheckIn.className = 'checkbox-label';
+          const inputCheckIn = document.createElement('input');
+          inputCheckIn.type = 'checkbox';
+          inputCheckIn.checked = guest.checkedIn;
+          inputCheckIn.onchange = (e) => {
+            window.updateGuestStatus(guest.id, 'checkedIn', e.target.checked);
+          };
+          labelCheckIn.appendChild(inputCheckIn);
+          labelCheckIn.appendChild(document.createTextNode('已報到'));
+
+          // 已領喜餅 Checkbox
+          const labelGift = document.createElement('label');
+          labelGift.className = 'checkbox-label';
+          const inputGift = document.createElement('input');
+          inputGift.type = 'checkbox';
+          inputGift.checked = guest.gotGift;
+          inputGift.onchange = (e) => {
+            window.updateGuestStatus(guest.id, 'gotGift', e.target.checked);
+          };
+          labelGift.appendChild(inputGift);
+          labelGift.appendChild(document.createTextNode('已領喜餅'));
+
+          groupDiv.appendChild(labelCheckIn);
+          groupDiv.appendChild(labelGift);
+
+          itemDiv.appendChild(nameSpan);
+          itemDiv.appendChild(groupDiv);
+          body.appendChild(itemDiv);
+        });
+      }
+    }
+
+    window.closeModal = function() {
+      document.getElementById('tableModal').style.display = 'none';
+      currentOpenTable = null;
+    };
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('tableModal');
+      if (event.target === modal) {
+        window.closeModal();
+      }
+    };
+
+    // 隱藏彩蛋：連點 5 下標題開啟 Firebase 設定
+    let clickCount = 0;
+    let clickTimer = null;
+    document.getElementById('headerTitle').onclick = function() {
+      clickCount++;
+      clearTimeout(clickTimer);
+      if (clickCount >= 5) {
+        clickCount = 0;
+        const newUrl = prompt("【隱藏設定】請輸入您的 Firebase Realtime Database 連結：", currentDbUrl);
+        if (newUrl && newUrl.trim() !== "") {
+          const cleanUrl = newUrl.trim();
+          localStorage.setItem("wedding_firebase_url", cleanUrl);
+          alert("Firebase 連結已成功更新！網頁將重新載入。");
+          window.location.reload();
+        }
+      } else {
+        clickTimer = setTimeout(() => {
+          clickCount = 0;
+        }, 1200);
+      }
+    };
+
+    // 啟動 Firebase 服務
+    initFirebase(currentDbUrl);
+  </script>
+
+</body>
+</html>
