@@ -37,10 +37,9 @@
       color: #7f8c8d;
     }
 
-    /* 頂部搜尋區域 */
     .search-box-container {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       margin-bottom: 12px;
     }
 
@@ -52,18 +51,11 @@
       border-radius: 20px;
       outline: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      transition: all 0.2s;
     }
 
-    .search-input:focus {
-      border-color: #2980b9;
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-    }
-
-    /* 搜尋結果列表 */
     .search-results {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       background: #ffffff;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -81,10 +73,6 @@
       align-items: center;
     }
 
-    .search-card:last-child {
-      border-bottom: none;
-    }
-
     .search-info {
       display: flex;
       align-items: center;
@@ -100,58 +88,72 @@
       font-weight: bold;
     }
 
-    /* 婚宴地圖 */
     .venue-container {
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
       background: #ffffff;
       border: 2px solid #2c3e50;
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       position: relative;
     }
 
     .grid-map {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-auto-rows: minmax(42px, auto);
-      gap: 8px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: minmax(38px, auto);
+      gap: 6px;
       align-items: center;
       justify-items: center;
     }
 
     .stage {
-      grid-column: 2 / span 3;
+      grid-column: 3 / span 3;
       grid-row: 1;
       width: 100%;
-      height: 45px;
+      height: 40px;
       background-color: #34495e;
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       border-radius: 4px;
-      letter-spacing: 1px;
     }
 
     .control-desk {
-      grid-column: 1;
+      grid-column: 2;
       grid-row: 1;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       border: 1px solid #7f8c8d;
       padding: 4px;
       border-radius: 4px;
       background: #ecf0f1;
+      width: 100%;
+      text-align: center;
+    }
+
+    .kitchen-door {
+      grid-column: 1;
+      grid-row: 2 / span 2;
+      border: 1px solid #7f8c8d;
+      font-size: 0.7rem;
+      padding: 4px;
+      writing-mode: vertical-lr;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8f9fa;
+      border-radius: 4px;
     }
 
     .main-table {
-      grid-column: 3;
-      grid-row: 2 / span 2;
-      width: 68px;
-      height: 68px;
+      grid-column: 3 / span 2;
+      grid-row: 2;
+      width: 60px;
+      height: 60px;
       background-color: #e74c3c;
       color: #fff;
       border-radius: 50%;
@@ -159,55 +161,39 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
       cursor: pointer;
       border: 2px solid #c0392b;
     }
 
-    .buffet {
-      grid-column: 4 / span 2;
-      grid-row: 8;
-      width: 100%;
-      height: 36px;
-      background: #bdc3c7;
-      border: 1px dashed #7f8c8d;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: #2c3e50;
-      border-radius: 4px;
-    }
-
     .aisle-arrow {
-      grid-column: 3;
-      grid-row: 4 / span 2;
+      grid-column: 4;
+      grid-row: 3 / span 2;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       color: #e67e22;
       font-weight: bold;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
 
     .aisle-arrow::before {
       content: "↑";
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       line-height: 1;
     }
 
     .table-btn {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       border: 2px solid #3498db;
       background-color: #ebf5fb;
       color: #2980b9;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -232,25 +218,40 @@
 
     .table-btn.backup-table::after {
       content: "預備";
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: normal;
       margin-top: -2px;
     }
 
+    .buffet {
+      grid-column: 5 / span 2;
+      grid-row: 8;
+      width: 100%;
+      height: 36px;
+      background: #bdc3c7;
+      border: 1px dashed #7f8c8d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #2c3e50;
+      border-radius: 4px;
+    }
+
     .welcome-area {
-      margin-top: 10px;
+      margin-top: 8px;
       width: 100%;
       background: #f8d7da;
       color: #721c24;
       border: 1px solid #f5c6cb;
-      padding: 8px;
+      padding: 6px;
       text-align: center;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       border-radius: 4px;
     }
 
-    /* Modal 視窗 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -292,7 +293,6 @@
       color: #ffffff;
       font-size: 1.5rem;
       cursor: pointer;
-      line-height: 1;
     }
 
     .modal-body {
@@ -307,69 +307,68 @@
       font-size: 0.95rem;
       color: #333;
     }
-
-    .guest-item:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
 
-  <!-- 標題區域 -->
   <div class="header-info">
     <h1>💕 婚宴桌位查詢 💕</h1>
     <p>請輸入您的姓名查詢桌號，或點擊桌號查看位置</p>
   </div>
 
-  <!-- 賓客姓名快速搜尋列 -->
   <div class="search-box-container">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 輸入姓名搜尋桌號 (如：偉昌)..." oninput="handleSearch()">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 輸入姓名搜尋桌號..." oninput="handleSearch()">
   </div>
 
-  <!-- 搜尋結果區 -->
   <div class="search-results" id="searchResults"></div>
 
-  <!-- 桌位圖區域 -->
+  <!-- 地圖精準還原晶宴會館 6 行配置 -->
   <div class="venue-container">
     <div class="grid-map">
       <div class="control-desk">控臺</div>
       <div class="stage">舞 臺</div>
 
+      <div class="kitchen-door">出餐口</div>
       <div class="main-table" onclick="openTableModal('01')">1 主桌</div>
 
-      <button class="table-btn" style="grid-column: 1; grid-row: 3;" onclick="openTableModal('02')">02</button>
-      <button class="table-btn" style="grid-column: 2; grid-row: 3;" onclick="openTableModal('03')">03</button>
-      
-      <button class="table-btn" style="grid-column: 1; grid-row: 4;" onclick="openTableModal('04')">04</button>
-      <button class="table-btn" style="grid-column: 2; grid-row: 4;" onclick="openTableModal('05')">05</button>
-      
-      <button class="table-btn" style="grid-column: 1; grid-row: 5;" onclick="openTableModal('06')">06</button>
-      <button class="table-btn" style="grid-column: 2; grid-row: 5;" onclick="openTableModal('07')">07</button>
+      <button class="table-btn" style="grid-column: 6; grid-row: 3;" onclick="openTableModal('15')">15</button>
 
+      <button class="table-btn" style="grid-column: 2; grid-row: 3;" onclick="openTableModal('02')">02</button>
+      <button class="table-btn" style="grid-column: 3; grid-row: 3;" onclick="openTableModal('03')">03</button>
+
+      <button class="table-btn" style="grid-column: 2; grid-row: 4;" onclick="openTableModal('04')">04</button>
+      <button class="table-btn" style="grid-column: 3; grid-row: 4;" onclick="openTableModal('05')">05</button>
+      
       <div class="aisle-arrow">進場</div>
 
-      <button class="table-btn" style="grid-column: 4; grid-row: 3;" onclick="openTableModal('13')">13</button>
-      <button class="table-btn" style="grid-column: 5; grid-row: 3;" onclick="openTableModal('14')">14</button>
-      
-      <button class="table-btn" style="grid-column: 4; grid-row: 4;" onclick="openTableModal('16')">16</button>
-      <button class="table-btn" style="grid-column: 5; grid-row: 4;" onclick="openTableModal('17')">17</button>
-      
-      <button class="table-btn" style="grid-column: 3; grid-row: 5;" onclick="openTableModal('19')">19</button>
-      <button class="table-btn" style="grid-column: 4; grid-row: 5;" onclick="openTableModal('20')">20</button>
-      <button class="table-btn" style="grid-column: 5; grid-row: 5;" onclick="openTableModal('21')">21</button>
-      
-      <button class="table-btn" style="grid-column: 3; grid-row: 6;" onclick="openTableModal('22')">22</button>
-      <button class="table-btn" style="grid-column: 4; grid-row: 6;" onclick="openTableModal('23')">23</button>
-      <button class="table-btn backup-table" style="grid-column: 5; grid-row: 6;" onclick="openTableModal('27')">27</button>
-      
-      <button class="table-btn" style="grid-column: 3; grid-row: 7;" onclick="openTableModal('24')">24</button>
-      <button class="table-btn" style="grid-column: 4; grid-row: 7;" onclick="openTableModal('25')">25</button>
-      <button class="table-btn backup-table" style="grid-column: 5; grid-row: 7;" onclick="openTableModal('26')">26</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 3;" onclick="openTableModal('13')">13</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 4;" onclick="openTableModal('14')">14</button>
+      <button class="table-btn" style="grid-column: 6; grid-row: 4;" onclick="openTableModal('18')">18</button>
 
-      <button class="table-btn" style="grid-column: 1; grid-row: 6;" onclick="openTableModal('08')">08</button>
-      <button class="table-btn" style="grid-column: 2; grid-row: 6;" onclick="openTableModal('09')">09</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 5;" onclick="openTableModal('06')">06</button>
+      <button class="table-btn" style="grid-column: 3; grid-row: 5;" onclick="openTableModal('07')">07</button>
       
-      <button class="table-btn" style="grid-column: 2; grid-row: 7;" onclick="openTableModal('10')">10</button>
-      <button class="table-btn" style="grid-column: 1; grid-row: 8;" onclick="openTableModal('11')">11</button>
-      <button class="table-btn" style="grid-column: 2; grid-row: 8;" onclick="openTableModal('12')">12</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 5;" onclick="openTableModal('16')">16</button>
+      <button class="table-btn" style="grid-column: 6; grid-row: 5;" onclick="openTableModal('17')">17</button>
+
+      <button class="table-btn" style="grid-column: 4; grid-row: 6;" onclick="openTableModal('19')">19</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 6;" onclick="openTableModal('20')">20</button>
+      <button class="table-btn" style="grid-column: 6; grid-row: 6;" onclick="openTableModal('21')">21</button>
+
+      <button class="table-btn" style="grid-column: 1; grid-row: 7;" onclick="openTableModal('08')">08</button>
+      <button class="table-btn" style="grid-column: 2; grid-row: 7;" onclick="openTableModal('09')">09</button>
+      <button class="table-btn" style="grid-column: 3; grid-row: 7;" onclick="openTableModal('10')">10</button>
+
+      <button class="table-btn" style="grid-column: 4; grid-row: 7;" onclick="openTableModal('22')">22</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 7;" onclick="openTableModal('23')">23</button>
+      <button class="table-btn backup-table" style="grid-column: 6; grid-row: 7;" onclick="openTableModal('27')">27</button>
+
+      <button class="table-btn" style="grid-column: 2; grid-row: 8;" onclick="openTableModal('11')">11</button>
+      <button class="table-btn" style="grid-column: 3; grid-row: 8;" onclick="openTableModal('12')">12</button>
+
+      <button class="table-btn" style="grid-column: 4; grid-row: 8;" onclick="openTableModal('24')">24</button>
+      <button class="table-btn" style="grid-column: 5; grid-row: 8;" onclick="openTableModal('25')">25</button>
+      <button class="table-btn backup-table" style="grid-column: 6; grid-row: 8;" onclick="openTableModal('26')">26</button>
 
       <div class="buffet">備餐臺</div>
     </div>
@@ -377,7 +376,6 @@
     <div class="welcome-area">👈 迎賓送客區 / 新娘休息室</div>
   </div>
 
-  <!-- Modal 彈窗 -->
   <div class="modal-overlay" id="tableModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -458,9 +456,9 @@
       { name: "黃聖翔", table: "22" }, { name: "李旻暄", table: "22" }, { name: "黃喜&黃盼", table: "22" },
       { name: "鄭伃婷", table: "22" }, { name: "大江榮年", table: "22" }, { name: "鍾沛奇", table: "22" },
       { name: "賴培修", table: "22" }, { name: "李思樺", table: "22" },
-      { name: "謝育珊", table: "23" }, { name: "劉祐豪", table: "23" }, { name: "周宇倫", table: "23" },
-      { name: "林佳誼", table: "23" }, { name: "陳怡仲", table: "23" }, { name: "Linda", table: "23" },
-      { name: "李念慈", table: "23" }, { name: "黃敬惠", table: "23" }, { name: "温羿婷", table: "23" }, { name: "陳文晴", table: "23" },
+      { name: "謝育珊", table: "23" }, { name: "劉祐豪", table: "23" }, { name: "周宇倫", table: "23" }, { name: "林佳誼", table: "23" },
+      { name: "陳怡仲", table: "23" }, { name: "Linda", table: "23" }, { name: "李念慈", table: "23" },
+      { name: "黃敬惠", table: "23" }, { name: "温羿婷", table: "23" }, { name: "陳文晴", table: "23" },
       { name: "黃品繻", table: "24" }, { name: "楊鎭源", table: "24" }, { name: "陳冠傑", table: "24" },
       { name: "張家荃", table: "24" }, { name: "游俊旗", table: "24" }, { name: "顧桂榮", table: "24" },
       { name: "陳以理", table: "24" }, { name: "陳奎延", table: "24" }, { name: "程珮綸(Una)", table: "24" }, { name: "林永約", table: "24" },
