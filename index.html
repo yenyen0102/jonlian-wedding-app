@@ -2,23 +2,22 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>婚禮招待專用桌位系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>婚宴招待桌位點名系統</title>
   <style>
     /* ==========================================
        1. 基本重置與變數定義
        ========================================== */
     :root {
-      --bg-color: #fdfbf7;
+      --bg-color: #f8f9fa;
       --primary-color: #d4a373;
       --table-bg: #ffffff;
-      --table-border: #e6ccb2;
-      --table-shadow: rgba(0, 0, 0, 0.05);
+      --table-border: #ccd5ae;
+      --table-shadow: rgba(0, 0, 0, 0.06);
       --carpet-color: #e63946;
       --carpet-bg: #ffccd5;
-      --text-main: #4a4e69;
-      --accent-gold: #b5838d;
-      --grid-gap: 12px;
+      --text-main: #333333;
+      --grid-gap: 6px; /* 縮小間距以適應手機全寬 */
     }
 
     * {
@@ -26,147 +25,169 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 16px;
+      padding: 8px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100vw;
+      overflow-x: hidden; /* 確保絕不出現左右滑動條 */
     }
 
     header {
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       text-align: center;
     }
 
     header h1 {
-      font-size: 1.4rem;
-      color: #6b705c;
-      margin-bottom: 4px;
+      font-size: 1.2rem;
+      color: #588157;
+      margin-bottom: 2px;
     }
 
     header p {
-      font-size: 0.85rem;
-      color: #a5a58d;
+      font-size: 0.75rem;
+      color: #6c757d;
     }
 
     /* ==========================================
-       2. 地圖外觀與響應式捲動容器
+       2. 貼合手機螢幕的全寬網格系統
        ========================================== */
-    .map-wrapper {
+    .map-container {
       width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      -webkit-overflow-scrolling: touch;
+      max-width: 480px; /* 直立手機最佳寬度 */
+      margin: 0 auto;
     }
 
     .venue-grid {
       display: grid;
-      grid-template-columns: minmax(65px, 1fr) repeat(3, minmax(75px, 1fr)) 45px repeat(3, minmax(75px, 1fr));
+      /* 8 欄配置：1(控) 2~4(左區) 5(走道) 6~8(右區) */
+      grid-template-columns: 0.9fr repeat(3, 1fr) 0.6fr repeat(3, 1fr);
+      grid-template-rows: repeat(9, auto);
       grid-gap: var(--grid-gap);
-      min-width: 680px;
       background: #ffffff;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-      position: relative;
+      padding: 10px 6px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      width: 100%;
     }
 
     /* ==========================================
-       3. 通用元件樣式 (按鈕與區域)
+       3. 桌位與設施通用樣式
        ========================================== */
     .table-btn {
       background-color: var(--table-bg);
-      border: 2px solid var(--table-border);
+      border: 1.5px solid var(--table-border);
       border-radius: 50%;
+      width: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      box-shadow: 0 2px 6px var(--table-shadow);
-      transition: all 0.2s ease;
-      user-select: none;
+      box-shadow: 0 1px 4px var(--table-shadow);
+      transition: transform 0.1s ease;
       outline: none;
+      padding: 0;
     }
 
-    .table-btn:hover, .table-btn:active {
-      transform: scale(1.05);
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 12px rgba(212, 163, 115, 0.3);
+    .table-btn:active {
+      transform: scale(0.92);
+      background-color: #f0f3f4;
     }
 
     .table-btn .number {
       font-weight: bold;
-      font-size: 1.1rem;
-      color: #333;
+      font-size: 0.9rem;
+      color: #2b2d42;
+      line-height: 1;
     }
 
     .table-btn .label {
-      font-size: 0.65rem;
-      color: #888;
+      font-size: 0.55rem;
+      color: #8d99ae;
       margin-top: 2px;
+      transform: scale(0.9);
     }
 
+    /* 特別區域 (舞台、控臺、主桌、備餐臺) */
     .facility-box {
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: bold;
       text-align: center;
     }
 
     .stage {
       grid-column: 2 / span 7;
-      background-color: #eddcd2;
-      color: #7f5539;
-      padding: 12px;
-      border: 1px dashed #cb997e;
+      grid-row: 1;
+      background-color: #e9ecef;
+      color: #495057;
+      padding: 8px 0;
+      border: 1px dashed #adb5bd;
     }
 
     .control-panel {
       grid-column: 1;
       grid-row: 1;
-      background-color: #e9ecef;
-      color: #495057;
-      border: 1px solid #ced4da;
+      background-color: #dee2e6;
+      color: #343a40;
+      font-size: 0.65rem;
     }
 
+    /* 4. 主桌放大優化 */
     .main-table {
       grid-column: 5;
       grid-row: 2;
-      background-color: #fff0f3;
-      border: 2px solid #ff4d6d;
-      color: #c9184a;
+      background-color: #ffe5ec;
+      border: 2.5px solid #ff0054;
+      color: #ff0054;
       border-radius: 50%;
+      width: 130%; /* 比普通桌放大 */
       aspect-ratio: 1 / 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 0 10px rgba(255, 77, 109, 0.2);
+      box-shadow: 0 0 8px rgba(255, 0, 84, 0.3);
       cursor: pointer;
+      justify-self: center;
+      align-self: center;
+      z-index: 2;
     }
 
+    .main-table .number {
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    .main-table .label {
+      font-size: 0.55rem;
+    }
+
+    /* 3. 備餐臺縮小優化 (置於右下靠邊) */
     .buffet {
-      grid-column: 6 / span 3;
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
-      padding: 8px;
+      grid-column: 8;
+      grid-row: 9;
+      background-color: #d8f3dc;
+      color: #2d6a4f;
+      border: 1px solid #b7e4c7;
+      font-size: 0.6rem;
+      padding: 4px 0;
     }
 
     .backup-table {
       border-style: dashed;
       background-color: #f8f9fa;
-      opacity: 0.8;
     }
 
     /* L 型進場走道 (紅毯) */
@@ -174,36 +195,34 @@
       grid-column: 5;
       grid-row: 3 / span 4;
       background-color: var(--carpet-bg);
-      border-left: 2px dashed var(--carpet-color);
-      border-right: 2px dashed var(--carpet-color);
+      border-left: 1.5px dashed var(--carpet-color);
+      border-right: 1.5px dashed var(--carpet-color);
       display: flex;
       justify-content: center;
       align-items: center;
       writing-mode: vertical-lr;
       color: var(--carpet-color);
-      font-size: 0.75rem;
-      letter-spacing: 4px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
       font-weight: bold;
-      z-index: 1;
     }
 
     .carpet-h {
       grid-column: 2 / span 4;
       grid-row: 6;
       background-color: var(--carpet-bg);
-      border-top: 2px dashed var(--carpet-color);
-      border-bottom: 2px dashed var(--carpet-color);
+      border-top: 1.5px dashed var(--carpet-color);
+      border-bottom: 1.5px dashed var(--carpet-color);
       display: flex;
       justify-content: center;
       align-items: center;
       color: var(--carpet-color);
-      font-size: 0.75rem;
-      letter-spacing: 4px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
       font-weight: bold;
-      z-index: 1;
     }
 
-    /* 桌位網格精確定位 (Grid Position) */
+    /* 桌位 Grid 精確定位 */
     .t-02 { grid-column: 3; grid-row: 3; }
     .t-03 { grid-column: 4; grid-row: 3; }
     .t-04 { grid-column: 3; grid-row: 4; }
@@ -218,6 +237,7 @@
     .t-11 { grid-column: 3; grid-row: 8; }
     .t-12 { grid-column: 4; grid-row: 8; }
 
+    /* 右側桌區 */
     .t-13 { grid-column: 6; grid-row: 3; }
     .t-14 { grid-column: 7; grid-row: 3; }
     .t-15 { grid-column: 8; grid-row: 3; }
@@ -230,18 +250,17 @@
     .t-20 { grid-column: 7; grid-row: 5; }
     .t-21 { grid-column: 8; grid-row: 5; }
 
-    .t-22 { grid-column: 6; grid-row: 6; }
-    .t-23 { grid-column: 7; grid-row: 6; }
-    .t-27 { grid-column: 8; grid-row: 6; }
+    /* 右側 22~27 桌下移調配 */
+    .t-22 { grid-column: 6; grid-row: 7; }
+    .t-23 { grid-column: 7; grid-row: 7; }
+    .t-27 { grid-column: 8; grid-row: 7; }
 
-    .t-24 { grid-column: 6; grid-row: 7; }
-    .t-25 { grid-column: 7; grid-row: 7; }
-    .t-26 { grid-column: 8; grid-row: 7; }
-
-    .buffet-pos { grid-row: 8; }
+    .t-24 { grid-column: 6; grid-row: 8; }
+    .t-25 { grid-column: 7; grid-row: 8; }
+    .t-26 { grid-column: 8; grid-row: 8; }
 
     /* ==========================================
-       4. 彈出視窗 (Modal) 樣式
+       4. 1. 修正 Modal 可滑動與滾動問題
        ========================================== */
     .modal-overlay {
       position: fixed;
@@ -249,11 +268,11 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.6);
       display: flex;
       justify-content: center;
-      align-items: flex-end; /* 手機版底部彈出 */
-      z-index: 1000;
+      align-items: flex-end;
+      z-index: 9999;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -268,29 +287,20 @@
       background: #ffffff;
       width: 100%;
       max-width: 500px;
-      max-height: 85vh;
+      height: 75vh; /* 固定高度確保可滾動區域明確 */
+      max-height: 80vh;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      padding: 16px 16px 24px 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
       display: flex;
       flex-direction: column;
       transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      transition: transform 0.3s ease-out;
     }
 
     .modal-overlay.active .modal-card {
       transform: translateY(0);
-    }
-
-    @media (min-width: 600px) {
-      .modal-overlay {
-        align-items: center; /* 桌機版居中顯示 */
-      }
-      .modal-card {
-        border-radius: 16px;
-        max-height: 80vh;
-      }
     }
 
     .modal-header {
@@ -298,51 +308,59 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid #f0f0f0;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+      padding-bottom: 10px;
+      margin-bottom: 8px;
+      flex-shrink: 0; /* 標頭不縮小 */
     }
 
     .modal-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
       color: #333;
     }
 
     .modal-close {
-      background: none;
+      background: #f1f3f5;
       border: none;
-      font-size: 1.5rem;
-      color: #888;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 1.2rem;
+      color: #666;
       cursor: pointer;
-      padding: 0 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
+    /* 關鍵修復：使 guest-list 區域能穩定上下滑動 */
     .guest-list {
-      overflow-y: auto;
       flex: 1;
-      padding-right: 4px;
+      overflow-y: scroll !important;
+      -webkit-overflow-scrolling: touch; /* iOS 流暢滑動 */
+      padding-bottom: 40px; /* 預留底部空間防止被手機操作列遮擋 */
     }
 
     .guest-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 8px;
-      border-bottom: 1px solid #f5f5f5;
+      padding: 12px 8px;
+      border-bottom: 1px solid #f1f3f5;
     }
 
     .guest-item.backup-guest {
-      background-color: #fafafa;
+      background-color: #f8f9fa;
     }
 
     .guest-name {
       font-size: 0.95rem;
-      color: #333;
+      color: #212529;
       font-weight: 500;
     }
 
     .guest-item.backup-guest .guest-name {
-      color: #aaa;
+      color: #adb5bd;
       font-style: italic;
     }
 
@@ -355,34 +373,37 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.8rem;
-      color: #666;
+      font-size: 0.85rem;
+      color: #495057;
       cursor: pointer;
+      user-select: none;
     }
 
     .checkbox-label input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--primary-color);
+      width: 18px;
+      height: 18px;
+      accent-color: #d4a373;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>婚宴桌位招待系統</h1>
-    <p>點擊桌號即可展開賓客名單與報到/喜餅註記</p>
+    <h1>婚宴招待點名系統</h1>
+    <p>點擊桌號即可展開並勾選報到與喜餅狀態</p>
   </header>
 
-  <div class="map-wrapper">
+  <div class="map-container">
     <div class="venue-grid">
       
       <!-- 1. 最上方設施區 -->
       <div class="facility-box control-panel">控臺</div>
       <div class="facility-box stage">舞 臺</div>
+      
+      <!-- 主桌 (已放大) -->
       <div class="main-table" onclick="openModal('01')">
-        <span class="number" style="font-size: 0.9rem;">主桌</span>
-        <span class="label" style="color: #c9184a;">01桌</span>
+        <span class="number">主桌</span>
+        <span class="label">01桌</span>
       </div>
 
       <!-- 2. L 型進場走道 (紅毯) -->
@@ -413,23 +434,23 @@
       <button class="table-btn t-20" onclick="openModal('20')"><span class="number">20</span></button>
       <button class="table-btn t-21" onclick="openModal('21')"><span class="number">21</span></button>
       
-      <!-- 預備桌區 -->
+      <!-- 右側下移桌區 -->
       <button class="table-btn t-22" onclick="openModal('22')"><span class="number">22</span></button>
       <button class="table-btn t-23" onclick="openModal('23')"><span class="number">23</span></button>
       <button class="table-btn t-27 backup-table" onclick="openModal('27')">
         <span class="number">27</span>
-        <span class="label">預備桌</span>
+        <span class="label">預備</span>
       </button>
 
       <button class="table-btn t-24" onclick="openModal('24')"><span class="number">24</span></button>
       <button class="table-btn t-25" onclick="openModal('25')"><span class="number">25</span></button>
       <button class="table-btn t-26 backup-table" onclick="openModal('26')">
         <span class="number">26</span>
-        <span class="label">預備桌</span>
+        <span class="label">預備</span>
       </button>
 
-      <!-- 5. 備餐臺 -->
-      <div class="facility-box buffet buffet-pos">備 餐 臺</div>
+      <!-- 5. 縮小後的備餐臺 (右下角落) -->
+      <div class="facility-box buffet">備餐臺</div>
 
     </div>
   </div>
@@ -442,13 +463,13 @@
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="guest-list" id="guestList">
-        <!-- JS 動態渲染賓客項目 -->
+        <!-- JS 動態生成賓客名單項目 -->
       </div>
     </div>
   </div>
 
   <script>
-    // 1. 原始名單資料 (根據您提供的內容完整轉換)
+    // 名單資料
     const rawGuestData = [
       { name: "新郎", table: "01" }, { name: "新娘", table: "01" }, { name: "新郎媽媽", table: "01" },
       { name: "昶佑外公", table: "01" }, { name: "昶佑外婆", table: "01" }, { name: "江偉昌", table: "01" },
@@ -553,31 +574,21 @@
       { name: "邱彥瑋", table: "25" }, { name: "邱主竭(小孩)", table: "25" }
     ];
 
-    // 2. 自動構建桌位資料庫（包含補滿預備位邏輯）
     const tablesDatabase = {};
+    const checkState = {};
 
     function initTablesData() {
-      // 初始化 1 ~ 27 桌
       for (let i = 1; i <= 27; i++) {
         const tableNumStr = i < 10 ? `0${i}` : `${i}`;
-        
-        let maxCap = 11;
-        let isBackupTable = false;
-
-        if (tableNumStr === "01") {
-          maxCap = 12; // 主桌上限 12 人
-        } else if (tableNumStr === "26" || tableNumStr === "27") {
-          isBackupTable = true; // 預備桌全預備位
-        }
+        let maxCap = (tableNumStr === "01") ? 12 : 11;
+        let isBackupTable = (tableNumStr === "26" || tableNumStr === "27");
 
         let guests = [];
 
         if (!isBackupTable) {
-          // 抓取名單內該桌的賓客
           const list = rawGuestData.filter(g => g.table === tableNumStr);
           guests = list.map(g => ({ name: g.name, isBackup: false }));
 
-          // 計算並補充預備位
           const neededBackup = maxCap - guests.length;
           for (let b = 1; b <= neededBackup; b++) {
             const backupName = (tableNumStr === "01") 
@@ -586,7 +597,6 @@
             guests.push({ name: backupName, isBackup: true });
           }
         } else {
-          // 26、27 預備桌全自動生成 11 位
           for (let b = 1; b <= 11; b++) {
             guests.push({ name: `${tableNumStr}桌預備位 ${b}`, isBackup: true });
           }
@@ -596,10 +606,6 @@
       }
     }
 
-    // 狀態暫存（記住 Checked 狀態）
-    const checkState = {};
-
-    // 3. Modal 互動控制 logic
     function openModal(tableNumStr) {
       const modal = document.getElementById("modalOverlay");
       const title = document.getElementById("modalTitle");
@@ -654,7 +660,7 @@
       checkState[key] = isChecked;
     }
 
-    // 頁面初始化
+    // 初始化
     initTablesData();
   </script>
 </body>
