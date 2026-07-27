@@ -53,16 +53,38 @@
       text-align: center;
     }
 
-    .stats-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 8px;
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 12px;
     }
 
-    .stats-title span {
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stats-label {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-bottom: 2px;
+    }
+
+    .stats-value {
+      font-size: 1.15rem;
+      font-weight: bold;
       color: #e63946;
-      font-size: 1.2rem;
+    }
+
+    .stats-sub {
+      font-size: 0.7rem;
+      color: #adb5bd;
+      font-weight: normal;
     }
 
     .search-box {
@@ -91,7 +113,7 @@
       pointer-events: none;
     }
 
-    /* 搜尋結果列表樣式 (新增) */
+    /* 搜尋結果列表樣式 */
     .search-results-list {
       margin-top: 10px;
       display: none;
@@ -497,12 +519,25 @@
 
   <!-- 頂部搜尋與統計區 -->
   <div class="top-search-card">
-    <div class="stats-title">實到人數：<span id="checkedCount">0</span> / 242 人</div>
+    <div class="stats-container">
+      <div class="stats-item">
+        <span class="stats-label">賓客到場率</span>
+        <span class="stats-value" id="attendanceRate">0.0%</span>
+        <span class="stats-sub" id="attendanceDetail">(0 / 242 人)</span>
+      </div>
+      <div style="width: 1px; height: 30px; background: #dee2e6;"></div>
+      <div class="stats-item">
+        <span class="stats-label">已入座桌數 (≥6人)</span>
+        <span class="stats-value" id="openedTables">0 / 27 桌</span>
+        <span class="stats-sub">門檻：滿 6 人</span>
+      </div>
+    </div>
+
     <div class="search-box">
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜尋賓客姓名..." oninput="handleSearch()">
     </div>
-    <!-- 搜尋結果下方清單區 (新增) -->
+    <!-- 搜尋結果下方清單區 -->
     <div class="search-results-list" id="searchResultsList"></div>
   </div>
 
@@ -691,6 +726,7 @@
       { name: "邱彥瑋", table: "25" }, { name: "邱主竭(小孩)", table: "25" }
     ];
 
+    const TOTAL_GUESTS = 242; // 固定總賓客人數
     const tablesDatabase = {};
     const checkState = {};
 
@@ -798,15 +834,38 @@
       }
     }
 
-    // 計算實到人數
+    // 計算實到人數比率與開桌數 (滿6人開桌)
     function updateCheckedCount() {
-      let count = 0;
-      Object.keys(checkState).forEach(key => {
-        if (key.endsWith("_checkin") && checkState[key] === true) {
-          count++;
+      let totalCheckedIn = 0;
+      let openedTableCount = 0;
+
+      // 逐桌計算報到人數
+      for (let i = 1; i <= 27; i++) {
+        const tableNumStr = i < 10 ? `0${i}` : `${i}`;
+        const guests = tablesDatabase[tableNumStr] || [];
+        let tableCheckinCount = 0;
+
+        guests.forEach((guest, index) => {
+          const keyCheckin = `${tableNumStr}_${index}_checkin`;
+          if (checkState[keyCheckin] === true) {
+            totalCheckedIn++;
+            tableCheckinCount++;
+          }
+        });
+
+        // 只要該桌報到人數 >= 6，視為已開桌/已入座
+        if (tableCheckinCount >= 6) {
+          openedTableCount++;
         }
-      });
-      document.getElementById("checkedCount").innerText = count;
+      }
+
+      // 計算百分比
+      const rate = ((totalCheckedIn / TOTAL_GUESTS) * 100).toFixed(1);
+
+      // 更新 DOM
+      document.getElementById("attendanceRate").innerText = `${rate}%`;
+      document.getElementById("attendanceDetail").innerText = `(${totalCheckedIn} / ${TOTAL_GUESTS} 人)`;
+      document.getElementById("openedTables").innerText = `${openedTableCount} / 27 桌`;
     }
 
     // 開啟正中央彈窗 Modal
@@ -863,7 +922,7 @@
     function toggleCheck(key, isChecked) {
       checkState[key] = isChecked;
       updateCheckedCount();
-      // 如果是在搜尋狀態下勾選，同步更新畫面
+      // 如果是在搜尋狀態下勾選，同步更新搜尋清單畫面
       const currentKeyword = document.getElementById("searchInput").value.trim();
       if (currentKeyword && document.getElementById("modalOverlay").classList.contains("active") === false) {
         handleSearch();
