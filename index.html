@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>婚宴招待導引系統</title>
+  <title>婚宴招待點名系統</title>
   <style>
+    /* ==========================================
+       1. 基本重置與變數定義
+       ========================================== */
     :root {
       --bg-color: #f4f6f8;
       --primary-color: #3d5a80;
@@ -27,7 +30,7 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 12px 8px;
+      padding: 10px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -36,28 +39,52 @@
       overflow-x: hidden;
     }
 
+    /* ==========================================
+       2. 頂部搜尋與統計區
+       ========================================== */
     .top-search-card {
       background: #ffffff;
       border-radius: 16px;
-      padding: 16px;
+      padding: 12px 16px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       margin-bottom: 12px;
       text-align: center;
     }
 
-    .welcome-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #e63946;
-      margin-bottom: 4px;
+    .stats-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 12px;
     }
 
-    .welcome-sub {
-      font-size: 0.8rem;
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stats-label {
+      font-size: 0.75rem;
       color: #6c757d;
-      margin-bottom: 12px;
+      margin-bottom: 2px;
+    }
+
+    .stats-value {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #e63946;
+    }
+
+    .stats-sub {
+      font-size: 0.7rem;
+      color: #adb5bd;
+      font-weight: normal;
     }
 
     .search-box {
@@ -67,10 +94,10 @@
 
     .search-input {
       width: 100%;
-      padding: 12px 16px 12px 42px;
-      border: 2px solid #e63946;
+      padding: 10px 16px 10px 40px;
+      border: 2px solid #3a86ff;
       border-radius: 25px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       outline: none;
       color: #333;
       background-color: #fff;
@@ -86,6 +113,7 @@
       pointer-events: none;
     }
 
+    /* 搜尋結果列表樣式 */
     .search-results-list {
       margin-top: 10px;
       display: none;
@@ -101,43 +129,42 @@
     }
 
     .search-result-item {
-      background-color: #fff0f3;
-      border: 1px solid #ffccd5;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
       border-radius: 10px;
-      padding: 10px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .search-result-header {
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .search-result-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
     }
 
     .search-result-name {
       font-weight: bold;
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #2b2d42;
     }
 
     .table-badge {
       background-color: #e63946;
       color: white;
-      font-size: 0.85rem;
-      padding: 4px 10px;
+      font-size: 0.75rem;
+      padding: 3px 8px;
       border-radius: 12px;
       font-weight: bold;
       white-space: nowrap;
     }
 
-    .search-result-peers {
-      font-size: 0.75rem;
-      color: #6c757d;
-    }
-
+    /* ==========================================
+       3. 地圖網格
+       ========================================== */
     .map-container {
       width: 100%;
       max-width: 480px;
@@ -157,6 +184,7 @@
       width: 100%;
     }
 
+    /* 桌位按鈕樣式 */
     .table-btn {
       background-color: var(--table-bg);
       border: 1.5px solid var(--table-border);
@@ -179,6 +207,7 @@
       background-color: #f0f3f4;
     }
 
+    /* 搜尋高亮效果 */
     .table-btn.highlight {
       border: 2.5px solid #ff0054 !important;
       background-color: #ffe5ec !important;
@@ -199,6 +228,14 @@
       line-height: 1;
     }
 
+    .table-btn .label {
+      font-size: 0.55rem;
+      color: #8d99ae;
+      margin-top: 2px;
+      transform: scale(0.9);
+    }
+
+    /* 特別區域 (舞台、控臺、主桌、備餐臺、迎賓送客區) */
     .facility-box {
       border-radius: 6px;
       display: flex;
@@ -239,6 +276,7 @@
       letter-spacing: 1px;
     }
 
+    /* 主桌 */
     .main-table {
       grid-column: 5;
       grid-row: 2;
@@ -268,6 +306,7 @@
       font-size: 0.55rem;
     }
 
+    /* 備餐臺 */
     .buffet {
       grid-column: 8;
       grid-row: 9;
@@ -283,6 +322,7 @@
       background-color: #f8f9fa;
     }
 
+    /* L 型進場走道 */
     .carpet-v {
       grid-column: 5;
       grid-row: 3 / span 4;
@@ -314,6 +354,7 @@
       font-weight: bold;
     }
 
+    /* 桌位 Grid 定位 */
     .t-02 { grid-column: 3; grid-row: 3; }
     .t-03 { grid-column: 4; grid-row: 3; }
     .t-04 { grid-column: 3; grid-row: 4; }
@@ -348,6 +389,9 @@
     .t-25 { grid-column: 7; grid-row: 8; }
     .t-26 { grid-column: 8; grid-row: 8; }
 
+    /* ==========================================
+       4. 畫面正中央彈窗 Modal
+       ========================================== */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -373,9 +417,9 @@
     .modal-card {
       background: #ffffff;
       width: 100%;
-      max-width: 360px;
-      height: 60vh;
-      max-height: 460px;
+      max-width: 380px;
+      height: 70vh;
+      max-height: 520px;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.25);
@@ -390,7 +434,7 @@
     }
 
     .modal-header {
-      background-color: #e63946;
+      background-color: #34495e;
       color: #ffffff;
       display: flex;
       justify-content: space-between;
@@ -400,8 +444,9 @@
     }
 
     .modal-title {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
     .modal-close {
@@ -411,58 +456,113 @@
       color: #ffffff;
       cursor: pointer;
       line-height: 1;
+      opacity: 0.8;
+    }
+
+    .modal-close:hover {
+      opacity: 1;
     }
 
     .guest-list {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll !important;
       -webkit-overflow-scrolling: touch;
-      padding: 12px 16px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      align-content: start;
+      padding: 6px 12px 20px 12px;
     }
 
-    .guest-tag {
-      background-color: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      color: #2b2d42;
-      text-align: center;
+    .guest-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .guest-item.backup-guest {
+      background-color: #fafafa;
+    }
+
+    .guest-name {
+      font-size: 0.95rem;
+      color: #2c3e50;
       font-weight: 500;
+    }
+
+    .guest-item.backup-guest .guest-name {
+      color: #bdc3c7;
+      font-style: italic;
+    }
+
+    .checkbox-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85rem;
+      color: #555;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #34495e;
     }
   </style>
 </head>
 <body>
 
+  <!-- 頂部搜尋與統計區 -->
   <div class="top-search-card">
-    <div class="welcome-title">🛎️ 婚宴招待專用導引系統</div>
-    <div class="welcome-sub">快速查詢賓客桌次與同桌名單</div>
+    <div class="stats-container">
+      <div class="stats-item">
+        <span class="stats-label">賓客到場率</span>
+        <span class="stats-value" id="attendanceRate">0.0%</span>
+        <span class="stats-sub" id="attendanceDetail">(0 / 242 人)</span>
+      </div>
+      <div style="width: 1px; height: 30px; background: #dee2e6;"></div>
+      <div class="stats-item">
+        <span class="stats-label">已入座桌數 (≥6人)</span>
+        <span class="stats-value" id="openedTables">0 / 27 桌</span>
+        <span class="stats-sub">門檻：滿 6 人</span>
+      </div>
+    </div>
+
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="輸入賓客姓名查詢..." oninput="handleSearch()">
+      <input type="text" id="searchInput" class="search-input" placeholder="搜尋賓客姓名..." oninput="handleSearch()">
     </div>
+    <!-- 搜尋結果下方清單區 -->
     <div class="search-results-list" id="searchResultsList"></div>
   </div>
 
+  <!-- 地圖區 -->
   <div class="map-container">
     <div class="venue-grid">
+      
+      <!-- 最上方設施區 -->
       <div class="facility-box control-panel">控臺</div>
       <div class="facility-box stage">舞 臺</div>
       
+      <!-- 主桌 -->
       <div class="main-table table-node" data-table="01" onclick="openModal('01')">
         <span class="number">主桌</span>
         <span class="label">01桌</span>
       </div>
 
+      <!-- L 型進場走道 -->
       <div class="carpet-v">進場動線</div>
       <div class="carpet-h">進場動線</div>
 
+      <!-- 左側紅色劃線區：迎賓送客區 -->
       <div class="facility-box welcome-area">迎賓送客區</div>
 
+      <!-- 左側桌區 -->
       <button class="table-btn table-node t-02" data-table="02" onclick="openModal('02')"><span class="number">02</span></button>
       <button class="table-btn table-node t-03" data-table="03" onclick="openModal('03')"><span class="number">03</span></button>
       <button class="table-btn table-node t-04" data-table="04" onclick="openModal('04')"><span class="number">04</span></button>
@@ -475,6 +575,7 @@
       <button class="table-btn table-node t-11" data-table="11" onclick="openModal('11')"><span class="number">11</span></button>
       <button class="table-btn table-node t-12" data-table="12" onclick="openModal('12')"><span class="number">12</span></button>
 
+      <!-- 右側桌區 -->
       <button class="table-btn table-node t-13" data-table="13" onclick="openModal('13')"><span class="number">13</span></button>
       <button class="table-btn table-node t-14" data-table="14" onclick="openModal('14')"><span class="number">14</span></button>
       <button class="table-btn table-node t-15" data-table="15" onclick="openModal('15')"><span class="number">15</span></button>
@@ -485,59 +586,42 @@
       <button class="table-btn table-node t-20" data-table="20" onclick="openModal('20')"><span class="number">20</span></button>
       <button class="table-btn table-node t-21" data-table="21" onclick="openModal('21')"><span class="number">21</span></button>
       
+      <!-- 右側下移桌區 -->
       <button class="table-btn table-node t-22" data-table="22" onclick="openModal('22')"><span class="number">22</span></button>
       <button class="table-btn table-node t-23" data-table="23" onclick="openModal('23')"><span class="number">23</span></button>
-      <button class="table-btn table-node t-27 backup-table" data-table="27" onclick="openModal('27')"><span class="number">27</span></button>
+      <button class="table-btn table-node t-27 backup-table" data-table="27" onclick="openModal('27')">
+        <span class="number">27</span>
+        <span class="label">預備</span>
+      </button>
 
       <button class="table-btn table-node t-24" data-table="24" onclick="openModal('24')"><span class="number">24</span></button>
       <button class="table-btn table-node t-25" data-table="25" onclick="openModal('25')"><span class="number">25</span></button>
-      <button class="table-btn table-node t-26 backup-table" data-table="26" onclick="openModal('26')"><span class="number">26</span></button>
+      <button class="table-btn table-node t-26 backup-table" data-table="26" onclick="openModal('26')">
+        <span class="number">26</span>
+        <span class="label">預備</span>
+      </button>
 
+      <!-- 備餐臺 -->
       <div class="facility-box buffet">備餐臺</div>
+
     </div>
   </div>
 
+  <!-- 正中央彈出視窗 Modal -->
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title" id="modalTitle">第 11 桌 名單</div>
+        <div class="modal-title" id="modalTitle">第 11 桌 同桌賓客</div>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
-      <div class="guest-list" id="guestList"></div>
+      <div class="guest-list" id="guestList">
+        <!-- JS 動態產生賓客名單 -->
+      </div>
     </div>
   </div>
 
   <script>
-    const tableNames = {
-      "01": "主桌",
-      "02": "新郎家人1",
-      "03": "新郎家人2",
-      "04": "新竹錫安使徒國度中心1",
-      "05": "新郎大學同學朋友",
-      "06": "新竹錫安使徒國度中心2",
-      "07": "BSSM+台北靈糧堂",
-      "08": "台北靈糧堂同工",
-      "09": "新郎毫無隱藏家人+台北靈糧堂",
-      "10": "新郎國中好朋友+台北靈糧堂",
-      "11": "新娘朋友",
-      "12": "流星家族",
-      "13": "新娘親友1",
-      "14": "新娘親友2",
-      "15": "新娘親友3",
-      "16": "新娘親友4",
-      "17": "新娘親友5",
-      "18": "新娘親友6",
-      "19": "外教會一家親",
-      "20": "榮星大家庭1",
-      "21": "榮星大家庭2",
-      "22": "榮星大家庭3+高中同學",
-      "23": "榮星大家庭4",
-      "24": "榮星大家庭5",
-      "25": "榮星大家庭6",
-      "26": "預備桌",
-      "27": "預備桌"
-    };
-
+    // 名單資料
     const rawGuestData = [
       { name: "新郎", table: "01" }, { name: "新娘", table: "01" }, { name: "新郎媽媽", table: "01" },
       { name: "昶佑外公", table: "01" }, { name: "昶佑外婆", table: "01" }, { name: "江偉昌", table: "01" },
@@ -642,39 +726,107 @@
       { name: "邱彥瑋", table: "25" }, { name: "邱主竭(小孩)", table: "25" }
     ];
 
+    const TOTAL_GUESTS = 242; // 固定總賓客人數
+    const tablesDatabase = {};
+    const checkState = {};
+
+    function initTablesData() {
+      for (let i = 1; i <= 27; i++) {
+        const tableNumStr = i < 10 ? `0${i}` : `${i}`;
+        let maxCap = (tableNumStr === "01") ? 12 : 11;
+        let isBackupTable = (tableNumStr === "26" || tableNumStr === "27");
+
+        let guests = [];
+
+        if (!isBackupTable) {
+          const list = rawGuestData.filter(g => g.table === tableNumStr);
+          guests = list.map(g => ({ name: g.name, isBackup: false }));
+
+          const neededBackup = maxCap - guests.length;
+          for (let b = 1; b <= neededBackup; b++) {
+            const backupName = (tableNumStr === "01") 
+              ? `主桌預備位 ${b}` 
+              : `第 ${tableNumStr} 桌預備位 ${b}`;
+            guests.push({ name: backupName, isBackup: true });
+          }
+        } else {
+          for (let b = 1; b <= 11; b++) {
+            guests.push({ name: `${tableNumStr}桌預備位 ${b}`, isBackup: true });
+          }
+        }
+
+        tablesDatabase[tableNumStr] = guests;
+      }
+    }
+
+    // 搜尋功能與高亮
     function handleSearch() {
       const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
       const nodes = document.querySelectorAll(".table-node");
       const resultsContainer = document.getElementById("searchResultsList");
 
+      // 重置地圖高亮與搜尋結果
       nodes.forEach(node => node.classList.remove("highlight"));
       resultsContainer.innerHTML = "";
       resultsContainer.classList.remove("active");
 
       if (!keyword) return;
 
-      const matchedResults = rawGuestData.filter(g => g.name.toLowerCase().includes(keyword));
+      const matchedResults = [];
 
+      Object.keys(tablesDatabase).forEach(tableNum => {
+        const guests = tablesDatabase[tableNum];
+
+        guests.forEach((guest, index) => {
+          if (!guest.isBackup && guest.name.toLowerCase().includes(keyword)) {
+            matchedResults.push({
+              name: guest.name,
+              table: tableNum,
+              index: index
+            });
+          }
+        });
+
+        // 若搜尋桌號（如輸入 "02" 或 "2"）
+        if (tableNum.includes(keyword)) {
+          const matchedNode = document.querySelector(`[data-table="${tableNum}"]`);
+          if (matchedNode) matchedNode.classList.add("highlight");
+        }
+      });
+
+      // 渲染搜尋結果至搜尋欄下方
       if (matchedResults.length > 0) {
         matchedResults.forEach(item => {
+          // 高亮地圖上的桌號
           const matchedNode = document.querySelector(`[data-table="${item.table}"]`);
           if (matchedNode) matchedNode.classList.add("highlight");
 
-          const customTableName = tableNames[item.table] || `第 ${item.table} 桌`;
-          const tableText = (item.table === "01") ? "主桌" : `第 ${item.table} 桌 - ${customTableName}`;
-          
-          const tableGuests = rawGuestData.filter(g => g.table === item.table).map(g => g.name).join("、");
+          const keyCheckin = `${item.table}_${item.index}_checkin`;
+          const keyGift = `${item.table}_${item.index}_gift`;
+
+          const isCheckedIn = !!checkState[keyCheckin];
+          const isGiftTaken = !!checkState[keyGift];
+
+          const tableText = (item.table === "01") ? "主桌" : `第 ${item.table} 桌`;
 
           const resDiv = document.createElement("div");
           resDiv.className = "search-result-item";
           resDiv.innerHTML = `
-            <div class="search-result-header">
+            <div class="search-result-info">
               <span class="search-result-name">${item.name}</span>
               <span class="table-badge">${tableText}</span>
             </div>
-            <div class="search-result-peers">同桌：${tableGuests}</div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" ${isCheckedIn ? 'checked' : ''} onchange="toggleCheck('${keyCheckin}', this.checked)">
+                報到
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" ${isGiftTaken ? 'checked' : ''} onchange="toggleCheck('${keyGift}', this.checked)">
+                喜餅
+              </label>
+            </div>
           `;
-          resDiv.onclick = () => openModal(item.table);
           resultsContainer.appendChild(resDiv);
         });
 
@@ -682,27 +834,77 @@
       }
     }
 
+    // 計算實到人數比率與開桌數 (滿6人開桌)
+    function updateCheckedCount() {
+      let totalCheckedIn = 0;
+      let openedTableCount = 0;
+
+      // 逐桌計算報到人數
+      for (let i = 1; i <= 27; i++) {
+        const tableNumStr = i < 10 ? `0${i}` : `${i}`;
+        const guests = tablesDatabase[tableNumStr] || [];
+        let tableCheckinCount = 0;
+
+        guests.forEach((guest, index) => {
+          const keyCheckin = `${tableNumStr}_${index}_checkin`;
+          if (checkState[keyCheckin] === true) {
+            totalCheckedIn++;
+            tableCheckinCount++;
+          }
+        });
+
+        // 只要該桌報到人數 >= 6，視為已開桌/已入座
+        if (tableCheckinCount >= 6) {
+          openedTableCount++;
+        }
+      }
+
+      // 計算百分比
+      const rate = ((totalCheckedIn / TOTAL_GUESTS) * 100).toFixed(1);
+
+      // 更新 DOM
+      document.getElementById("attendanceRate").innerText = `${rate}%`;
+      document.getElementById("attendanceDetail").innerText = `(${totalCheckedIn} / ${TOTAL_GUESTS} 人)`;
+      document.getElementById("openedTables").innerText = `${openedTableCount} / 27 桌`;
+    }
+
+    // 開啟正中央彈窗 Modal
     function openModal(tableNumStr) {
       const modal = document.getElementById("modalOverlay");
       const title = document.getElementById("modalTitle");
       const listContainer = document.getElementById("guestList");
 
-      const groupName = tableNames[tableNumStr] || "";
-      title.innerText = `第 ${tableNumStr} 桌 - ${groupName}`;
+      title.innerText = (tableNumStr === "01") ? "主桌 (01桌) 同桌賓客" : `第 ${tableNumStr} 桌 同桌賓客`;
       listContainer.innerHTML = "";
 
-      const guests = rawGuestData.filter(g => g.table === tableNumStr);
+      const guests = tablesDatabase[tableNumStr] || [];
 
-      if (guests.length === 0) {
-        listContainer.innerHTML = `<div style="grid-column: span 2; text-align:center; color:#999; padding: 20px;">本桌為預備桌</div>`;
-      } else {
-        guests.forEach(guest => {
-          const tagDiv = document.createElement("div");
-          tagDiv.className = "guest-tag";
-          tagDiv.innerText = guest.name;
-          listContainer.appendChild(tagDiv);
-        });
-      }
+      guests.forEach((guest, index) => {
+        const keyCheckin = `${tableNumStr}_${index}_checkin`;
+        const keyGift = `${tableNumStr}_${index}_gift`;
+
+        const isCheckedIn = !!checkState[keyCheckin];
+        const isGiftTaken = !!checkState[keyGift];
+
+        const itemDiv = document.createElement("div");
+        itemDiv.className = `guest-item ${guest.isBackup ? 'backup-guest' : ''}`;
+        
+        itemDiv.innerHTML = `
+          <span class="guest-name">${guest.name}</span>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" ${isCheckedIn ? 'checked' : ''} onchange="toggleCheck('${keyCheckin}', this.checked)">
+              報到
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" ${isGiftTaken ? 'checked' : ''} onchange="toggleCheck('${keyGift}', this.checked)">
+              喜餅
+            </label>
+          </div>
+        `;
+
+        listContainer.appendChild(itemDiv);
+      });
 
       modal.classList.add("active");
     }
@@ -716,6 +918,19 @@
         closeModal();
       }
     }
+
+    function toggleCheck(key, isChecked) {
+      checkState[key] = isChecked;
+      updateCheckedCount();
+      // 如果是在搜尋狀態下勾選，同步更新搜尋清單畫面
+      const currentKeyword = document.getElementById("searchInput").value.trim();
+      if (currentKeyword && document.getElementById("modalOverlay").classList.contains("active") === false) {
+        handleSearch();
+      }
+    }
+
+    // 初始化
+    initTablesData();
   </script>
 </body>
 </html>
