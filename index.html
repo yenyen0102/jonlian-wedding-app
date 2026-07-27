@@ -91,6 +91,55 @@
       pointer-events: none;
     }
 
+    /* 搜尋結果列表樣式 (新增) */
+    .search-results-list {
+      margin-top: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .search-results-list.active {
+      display: flex;
+    }
+
+    .search-result-item {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .search-result-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .search-result-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: #2b2d42;
+    }
+
+    .table-badge {
+      background-color: #e63946;
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
     /* ==========================================
        3. 地圖網格
        ========================================== */
@@ -192,15 +241,12 @@
       font-size: 0.65rem;
     }
 
-    /* 左下紅色劃線位置：迎賓送客區 */
     .welcome-area {
       grid-column: 1;
       grid-row: 7 / span 2;
-      background-color: #f8edeb;
-      color: #d8e2dc;
-      border: 1px dashed #fcd5ce;
       background-color: #ffe5ec;
       color: #d90429;
+      border: 1px dashed #fcd5ce;
       font-size: 0.65rem;
       line-height: 1.3;
       padding: 4px 2px;
@@ -454,8 +500,10 @@
     <div class="stats-title">實到人數：<span id="checkedCount">0</span> / 242 人</div>
     <div class="search-box">
       <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="搜尋賓客姓名、桌號..." oninput="handleSearch()">
+      <input type="text" id="searchInput" class="search-input" placeholder="搜尋賓客姓名..." oninput="handleSearch()">
     </div>
+    <!-- 搜尋結果下方清單區 (新增) -->
+    <div class="search-results-list" id="searchResultsList"></div>
   </div>
 
   <!-- 地圖區 -->
@@ -679,24 +727,75 @@
     function handleSearch() {
       const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
       const nodes = document.querySelectorAll(".table-node");
+      const resultsContainer = document.getElementById("searchResultsList");
 
-      nodes.forEach(node => {
-        node.classList.remove("highlight");
-      });
+      // 重置地圖高亮與搜尋結果
+      nodes.forEach(node => node.classList.remove("highlight"));
+      resultsContainer.innerHTML = "";
+      resultsContainer.classList.remove("active");
 
       if (!keyword) return;
 
+      const matchedResults = [];
+
       Object.keys(tablesDatabase).forEach(tableNum => {
         const guests = tablesDatabase[tableNum];
-        const hasMatch = guests.some(g => !g.isBackup && g.name.toLowerCase().includes(keyword)) || tableNum.includes(keyword);
 
-        if (hasMatch) {
-          const matchedNode = document.querySelector(`[data-table="${tableNum}"]`);
-          if (matchedNode) {
-            matchedNode.classList.add("highlight");
+        guests.forEach((guest, index) => {
+          if (!guest.isBackup && guest.name.toLowerCase().includes(keyword)) {
+            matchedResults.push({
+              name: guest.name,
+              table: tableNum,
+              index: index
+            });
           }
+        });
+
+        // 若搜尋桌號（如輸入 "02" 或 "2"）
+        if (tableNum.includes(keyword)) {
+          const matchedNode = document.querySelector(`[data-table="${tableNum}"]`);
+          if (matchedNode) matchedNode.classList.add("highlight");
         }
       });
+
+      // 渲染搜尋結果至搜尋欄下方
+      if (matchedResults.length > 0) {
+        matchedResults.forEach(item => {
+          // 高亮地圖上的桌號
+          const matchedNode = document.querySelector(`[data-table="${item.table}"]`);
+          if (matchedNode) matchedNode.classList.add("highlight");
+
+          const keyCheckin = `${item.table}_${item.index}_checkin`;
+          const keyGift = `${item.table}_${item.index}_gift`;
+
+          const isCheckedIn = !!checkState[keyCheckin];
+          const isGiftTaken = !!checkState[keyGift];
+
+          const tableText = (item.table === "01") ? "主桌" : `第 ${item.table} 桌`;
+
+          const resDiv = document.createElement("div");
+          resDiv.className = "search-result-item";
+          resDiv.innerHTML = `
+            <div class="search-result-info">
+              <span class="search-result-name">${item.name}</span>
+              <span class="table-badge">${tableText}</span>
+            </div>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" ${isCheckedIn ? 'checked' : ''} onchange="toggleCheck('${keyCheckin}', this.checked)">
+                報到
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" ${isGiftTaken ? 'checked' : ''} onchange="toggleCheck('${keyGift}', this.checked)">
+                喜餅
+              </label>
+            </div>
+          `;
+          resultsContainer.appendChild(resDiv);
+        });
+
+        resultsContainer.classList.add("active");
+      }
     }
 
     // 計算實到人數
@@ -764,6 +863,11 @@
     function toggleCheck(key, isChecked) {
       checkState[key] = isChecked;
       updateCheckedCount();
+      // 如果是在搜尋狀態下勾選，同步更新畫面
+      const currentKeyword = document.getElementById("searchInput").value.trim();
+      if (currentKeyword && document.getElementById("modalOverlay").classList.contains("active") === false) {
+        handleSearch();
+      }
     }
 
     // 初始化
