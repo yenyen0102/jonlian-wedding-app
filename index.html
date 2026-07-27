@@ -2,337 +2,466 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>婚禮宴席桌位圖 - 招待版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>婚宴座位圖 - 招待版</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #f8f9fa; color: #333; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    body { background-color: #f7f9fc; color: #333; padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
     
-    /* 上方統計區 */
-    .header-card {
-      background: #fff;
-      padding: 12px 16px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      z-index: 10;
-    }
-    .stats-title { font-size: 18px; font-weight: bold; color: #444; margin-bottom: 8px; }
-    .stats-count { color: #e74c3c; font-size: 22px; font-weight: bold; }
+    /* 頂部統計欄 */
+    .header-card { width: 100%; max-width: 480px; background: #fff; border-radius: 16px; padding: 14px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 10px; }
+    .header-card h2 { font-size: 1.2rem; color: #444; }
+    .header-card .count { font-size: 1.6rem; font-weight: bold; color: #d9534f; margin-top: 2px; }
+
+    /* 搜尋欄 */
+    .search-box { width: 100%; max-width: 480px; margin-bottom: 12px; position: relative; }
+    .search-box input { width: 100%; padding: 12px 16px 12px 40px; border-radius: 25px; border: 1.5px solid #28a745; outline: none; font-size: 1rem; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .search-box::before { content: "🔍"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; opacity: 0.6; }
+
+    /* 搜尋結果顯示區 */
+    .search-results { width: 100%; max-width: 480px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto; margin-bottom: 12px; display: none; }
+    .result-item { padding: 10px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .result-item:last-child { border-bottom: none; }
+    .result-item .info { font-size: 0.95rem; }
+    .result-item .tag { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+
+    /* 平面圖地圖卡片 (直式滿版) */
+    .map-container { width: 100%; max-width: 480px; background: #fff; border: 2px solid #e2bc74; border-radius: 16px; padding: 12px 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex: 1; display: flex; flex-direction: column; gap: 8px; position: relative; overflow-y: auto; }
     
-    .search-box {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    .search-input {
-      width: 100%;
-      padding: 8px 16px 8px 36px;
-      border: 1.5px solid #3498db;
-      border-radius: 20px;
-      font-size: 14px;
-      outline: none;
-    }
-    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; }
+    /* 舞台區 */
+    .stage { background: #d4af37; color: #fff; text-align: center; padding: 6px; font-weight: bold; border-radius: 6px; font-size: 0.95rem; letter-spacing: 2px; }
 
-    /* 地圖滿版區域 */
-    .map-container {
-      flex: 1;
-      position: relative;
-      background: #ffffff;
-      margin: 8px;
-      border: 2px solid #e2c974;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+    /* 桌位網格配置 (直式佈局) */
+    .map-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .row { display: flex; justify-content: space-around; align-items: center; }
+    
+    /* 桌子圓圈 */
+    .table-btn { width: 68px; height: 68px; border-radius: 50%; border: 1.5px solid #d4af37; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; transition: transform 0.1s, background 0.2s; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .table-btn:active { transform: scale(0.95); }
+    .table-btn.main-table { width: 80px; height: 80px; border: 2px solid #d9534f; background: #fff0f0; color: #d9534f; font-weight: bold; }
+    .table-btn .name { font-weight: bold; line-height: 1.1; }
+    .table-btn .stat { font-size: 0.65rem; color: #777; margin-top: 2px; }
+    
+    /* 走道標示 */
+    .walkway { border: 1px dashed #e8c89b; padding: 4px; text-align: center; font-size: 0.7rem; color: #b8860b; border-radius: 4px; background: #fffdf8; }
 
-    /* 舞台 */
-    .stage {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #c59b27;
-      color: white;
-      padding: 4px 30px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 13px;
-    }
-
-    /* 控制與備餐區 */
-    .zone-box {
-      position: absolute;
-      border: 1px solid #ccc;
-      background: #f0f0f0;
-      color: #666;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-    }
-    .control-zone { top: 12px; left: 12px; width: 45px; height: 25px; }
-    .prep-zone { bottom: 12px; right: 12px; width: 65px; height: 25px; }
-
-    /* 迎賓送客區 (延伸至接近08桌/進場走道) */
-    .welcome-zone {
-      position: absolute;
-      left: 12px;
-      bottom: 12px;
-      width: 75px;
-      height: 42%; /* 向上延伸到走道與08桌高度 */
-      border: 1.5px dashed #c59b27;
-      background: #fffdf0;
-      color: #b38600;
-      font-size: 11px;
-      font-weight: bold;
-      writing-mode: vertical-lr;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 6px;
-      letter-spacing: 2px;
-    }
-
-    /* 走道動線 */
-    .aisle-line-v {
-      position: absolute;
-      width: 2px;
-      background: #f5d0a9;
-      top: 105px;
-      left: 45%;
-      height: calc(100% - 280px);
-    }
-    .aisle-line-h {
-      position: absolute;
-      height: 2px;
-      background: #f5d0a9;
-      bottom: 175px;
-      left: 24%;
-      width: 21%;
-    }
-    .aisle-tag {
-      position: absolute;
-      background: #fff;
-      border: 1px solid #f5d0a9;
-      color: #d35400;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 8px;
-    }
-
-    /* 桌位通用樣式 */
-    .table-node {
-      position: absolute;
-      border-radius: 50%;
-      border: 1.5px solid #d4af37;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    .table-node:active { transform: scale(0.95); }
-    .table-title { font-size: 11px; font-weight: bold; color: #333; }
-    .table-count { font-size: 9px; color: #777; margin-top: 1px; }
-
-    /* 特殊桌位：主桌 (比02,03更靠前) */
-    .table-main {
-      width: 62px;
-      height: 62px;
-      border: 2px solid #e74c3c;
-      background: #fff0f0;
-      top: 42px; /* 靠近舞台 */
-      left: 39%;
-    }
-    .table-main .table-title { color: #c0392b; font-size: 12px; }
-
-    /* Modal 彈窗 */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: none; justify-content: center; align-items: flex-end;
-      z-index: 100;
-    }
-    .modal-content {
-      background: white; width: 100%; max-width: 500px;
-      border-radius: 16px 16px 0 0; max-height: 80vh;
-      display: flex; flex-direction: column; animation: slideUp 0.25s ease-out;
-    }
+    /* 彈窗Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 100; }
+    .modal-content { background: #fff; width: 100%; max-width: 480px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; max-height: 80vh; overflow-y: auto; animation: slideUp 0.25s ease-out; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .modal-header {
-      padding: 16px; border-bottom: 1px solid #eee;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .modal-body { padding: 12px 16px; overflow-y: auto; flex: 1; }
-    .guest-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 0; border-bottom: 1px solid #f5f5f5;
-    }
-    .check-btn {
-      padding: 6px 12px; border-radius: 16px; border: none;
-      font-size: 12px; font-weight: bold; cursor: pointer;
-    }
-    .btn-absent { background: #eee; color: #666; }
-    .btn-present { background: #2ecc71; color: white; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 12px; }
+    .modal-header h3 { color: #d4af37; font-size: 1.2rem; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
+    
+    .guest-list { display: flex; flex-direction: column; gap: 8px; }
+    .guest-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f9f9f9; border-radius: 8px; }
+    .guest-item.checked-in { background: #e8f5e9; }
+    .check-btn { padding: 6px 12px; border-radius: 20px; border: none; background: #28a745; color: #fff; font-size: 0.8rem; cursor: pointer; }
+    .check-btn.active { background: #dc3545; }
   </style>
 </head>
 <body>
 
+  <!-- 統計欄 -->
   <div class="header-card">
-    <div class="stats-title">實到人數：<span id="arrived-count" class="stats-count">0</span> / <span id="total-count">242</span> 人</div>
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" class="search-input" placeholder="搜尋賓客姓名、桌號..." oninput="handleSearch()">
+    <div>實到人數</div>
+    <div class="count"><span id="arrivedCount">0</span> / <span id="totalCount">242</span> 人</div>
+  </div>
+
+  <!-- 搜尋欄 -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜尋賓客姓名、桌號..." oninput="handleSearch()">
+  </div>
+
+  <!-- 搜尋結果區 -->
+  <div class="search-results" id="searchResults"></div>
+
+  <!-- 直式座位圖 (主桌貼近舞臺，02/03/13/14在下) -->
+  <div class="map-container">
+    <div class="stage">舞 臺</div>
+
+    <div class="map-grid">
+      <!-- 最靠近舞臺：主桌 (第1桌) -->
+      <div class="row" style="justify-content: center; margin: 4px 0;">
+        <button class="table-btn main-table" onclick="openTableModal(1)">
+          <span class="name">主桌</span>
+          <span class="stat" id="stat-1">0/12</span>
+        </button>
+      </div>
+
+      <!-- 第一排：02, 03, 13, 14 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(2)"><span class="name">02 桌</span><span class="stat" id="stat-2">0/8</span></button>
+        <button class="table-btn" onclick="openTableModal(3)"><span class="name">03 桌</span><span class="stat" id="stat-3">0/6</span></button>
+        <button class="table-btn" onclick="openTableModal(13)"><span class="name">13 桌</span><span class="stat" id="stat-13">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(14)"><span class="name">14 桌</span><span class="stat" id="stat-14">0/10</span></button>
+      </div>
+
+      <!-- 第二排：04, 05, 15, 16 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(4)"><span class="name">04 桌</span><span class="stat" id="stat-4">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(5)"><span class="name">05 桌</span><span class="stat" id="stat-5">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(15)"><span class="name">15 桌</span><span class="stat" id="stat-15">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(16)"><span class="name">16 桌</span><span class="stat" id="stat-16">0/8</span></button>
+      </div>
+
+      <!-- 第三排：06, 07, 17, 18 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(6)"><span class="name">06 桌</span><span class="stat" id="stat-6">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(7)"><span class="name">07 桌</span><span class="stat" id="stat-7">0/8</span></button>
+        <button class="table-btn" onclick="openTableModal(17)"><span class="name">17 桌</span><span class="stat" id="stat-17">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(18)"><span class="name">18 桌</span><span class="stat" id="stat-18">0/10</span></button>
+      </div>
+
+      <div class="walkway">進場走道</div>
+
+      <!-- 第四排：08, 09, 19, 20 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(8)"><span class="name">08 桌</span><span class="stat" id="stat-8">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(9)"><span class="name">09 桌</span><span class="stat" id="stat-9">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(19)"><span class="name">19 桌</span><span class="stat" id="stat-19">0/9</span></button>
+        <button class="table-btn" onclick="openTableModal(20)"><span class="name">20 桌</span><span class="stat" id="stat-20">0/10</span></button>
+      </div>
+
+      <!-- 第五排：10, 11, 21, 22 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(10)"><span class="name">10 桌</span><span class="stat" id="stat-10">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(11)"><span class="name">11 桌</span><span class="stat" id="stat-11">0/11</span></button>
+        <button class="table-btn" onclick="openTableModal(21)"><span class="name">21 桌</span><span class="stat" id="stat-21">0/9</span></button>
+        <button class="table-btn" onclick="openTableModal(22)"><span class="name">22 桌</span><span class="stat" id="stat-22">0/11</span></button>
+      </div>
+
+      <!-- 第六排：12, 23, 24, 25 桌 -->
+      <div class="row">
+        <button class="table-btn" onclick="openTableModal(12)"><span class="name">12 桌</span><span class="stat" id="stat-12">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(23)"><span class="name">23 桌</span><span class="stat" id="stat-23">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(24)"><span class="name">24 桌</span><span class="stat" id="stat-24">0/10</span></button>
+        <button class="table-btn" onclick="openTableModal(25)"><span class="name">25 桌</span><span class="stat" id="stat-25">0/11</span></button>
+      </div>
     </div>
   </div>
 
-  <div class="map-container" id="map-container">
-    <div class="stage">舞 臺</div>
-    <div class="zone-box control-zone">控台</div>
-    <div class="zone-box prep-zone">備餐區</div>
-    <div class="welcome-zone">迎賓送客區</div>
-
-    <!-- 動線標示 -->
-    <div class="aisle-line-v"></div>
-    <div class="aisle-line-h"></div>
-    <div class="aisle-tag" style="top: 180px; left: 41%;">進場走道</div>
-
-    <!-- 桌位區 (動態由 JS 生成) -->
-    <div id="tables-layer"></div>
-  </div>
-
-  <!-- 賓客清單 Modal -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
+  <!-- 彈窗Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
       <div class="modal-header">
-        <h3 id="modal-title">桌號</h3>
-        <button onclick="closeModal()" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+        <h3 id="modalTitle">桌號</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
-      <div class="modal-body" id="modal-body"></div>
+      <div class="guest-list" id="modalGuestList"></div>
     </div>
   </div>
 
   <script>
-    // 賓客資料庫
+    // 完整賓客資料庫
     const rawData = [
-      ["新郎",1,"主桌"],["新娘",1,"主桌"],["新郎媽媽",1,"主桌"],["昶佑外公",1,"主桌"],["昶佑外婆",1,"主桌"],["江偉昌",1,"主桌"],["洪宜均",1,"主桌"],["新娘媽媽",1,"主桌"],["新娘爸爸",1,"主桌"],["新娘阿嬤",1,"主桌"],["新娘阿公",1,"主桌"],["新娘舅舅",1,"主桌"],
-      ["簡凡恩",2,"新郎家人1"],["簡予希",2,"新郎家人1"],["洪耿強",2,"新郎家人1"],["江晟愷",2,"新郎家人1"],["江芯辰",2,"新郎家人1"],["大姑姑",2,"新郎家人1"],["球球",2,"新郎家人1"],["新郎弟弟",2,"新郎家人1"],
-      ["Vivi阿姨",3,"新郎家人2"],["簡士祥",3,"新郎家人2"],["Kimi 阿姨",3,"新郎家人2"],["吳叔叔(Kimi 阿姨老公)",3,"新郎家人2"],["偉益舅舅",3,"新郎家人2"],["阿丁",3,"新郎家人2"],
-      ["瑞雲",4,"新竹錫安使徒國度中心1"],["黃哥",4,"新竹錫安使徒國度中心1"],["黃姊",4,"新竹錫安使徒國度中心1"],["林哥",4,"新竹錫安使徒國度中心1"],["林姐",4,"新竹錫安使徒國度中心1"],["淑慎",4,"新竹錫安使徒國度中心1"],["鈴莉",4,"新竹錫安使徒國度中心1"],["麗文",4,"新竹錫安使徒國度中心1"],["鵬程",4,"新竹錫安使徒國度中心1"],["佩伶",4,"新竹錫安使徒國度中心1"],
-      ["紅魚",5,"新郎大學同學朋友"],["王澤倫(紅魚老公)",5,"新郎大學同學朋友"],["謝書豪",5,"新郎大學同學朋友"],["周宛瑩",5,"新郎大學同學朋友"],["王冠軒",5,"新郎大學同學朋友"],["許瑜瑄",5,"新郎大學同學朋友"],["郭宣廷(瑜瑄男友)",5,"新郎大學同學朋友"],["鄧敏如",5,"新郎大學同學朋友"],["黃天羽",5,"新郎大學同學朋友"],["馮全",5,"新郎大學同學朋友"],
-      ["江淑鶯(大姐牧師)",6,"新竹錫安使徒國度中心2"],["盧文儀牧師",6,"新竹錫安使徒國度中心2"],["盧文儀家人",6,"新竹錫安使徒國度中心2"],["張雅筠",6,"新竹錫安使徒國度中心2"],["鳳生區牧",6,"新竹錫安使徒國度中心2"],["古姐",6,"新竹錫安使徒國度中心2"],["呂哥(古姊老公)",6,"新竹錫安使徒國度中心2"],["古姊家人1",6,"新竹錫安使徒國度中心2"],["古姊家人2",6,"新竹錫安使徒國度中心2"],["古姊家人3",6,"新竹錫安使徒國度中心2"],
-      ["Aldvin Derrick(楊金高)",7,"BSSM+台北靈糧堂"],["Grace(汪彤)",7,"BSSM+台北靈糧堂"],["Yunching(黃筠卿)",7,"BSSM+台北靈糧堂"],["Alice(劉愛慈)",7,"BSSM+台北靈糧堂"],["呂凱立",7,"BSSM+台北靈糧堂"],["Naomi",7,"BSSM+台北靈糧堂"],["黃姿穎",7,"BSSM+台北靈糧堂"],["李珮毓",7,"BSSM+台北靈糧堂"],
-      ["趙偉成(Peter)",8,"台北靈糧堂同工"],["陳怡怜",8,"台北靈糧堂同工"],["吳宏祺(Alex)",8,"台北靈糧堂同工"],["張豫慧",8,"台北靈糧堂同工"],["李珮菁",8,"台北靈糧堂同工"],["賴秋玲",8,"台北靈糧堂同工"],["許家鳳",8,"台北靈糧堂同工"],["廖學敏",8,"台北靈糧堂同工"],["陳曉平Aiko",8,"台北靈糧堂同工"],["陳曉平朋友",8,"台北靈糧堂同工"],
-      ["高廉程",9,"毫無隱藏家人+台北靈糧堂"],["Elva",9,"毫無隱藏家人+台北靈糧堂"],["Minnie",9,"毫無隱藏家人+台北靈糧堂"],["龍辭鈞",9,"毫無隱藏家人+台北靈糧堂"],["IVY",9,"毫無隱藏家人+台北靈糧堂"],["董佳音",9,"毫無隱藏家人+台北靈糧堂"],["羅正",9,"毫無隱藏家人+台北靈糧堂"],["劉慧怡(Kay)",9,"毫無隱藏家人+台北靈糧堂"],["傅毓庭",9,"毫無隱藏家人+台北靈糧堂"],["陳穎文",9,"毫無隱藏家人+台北靈糧堂"],
-      ["倪士杰",10,"新郎國中好朋友+台北靈糧堂"],["麥豪麟",10,"新郎國中好朋友+台北靈糧堂"],["戴詩庭",10,"新郎國中好朋友+台北靈糧堂"],["李詠絮",10,"新郎國中好朋友+台北靈糧堂"],["祈偉",10,"新郎國中好朋友+台北靈糧堂"],["陳偉立",10,"新郎國中好朋友+台北靈糧堂"],["沈庭瑀",10,"新郎國中好朋友+台北靈糧堂"],["魏弘傑",10,"新郎國中好朋友+台北靈糧堂"],["崔廼萱",10,"新郎國中好朋友+台北靈糧堂"],["李碩傑(Nick)",10,"新郎國中好朋友+台北靈糧堂"],
-      ["曾珮瑜",11,"新娘朋友"],["陳煜君",11,"新娘朋友"],["吳家竹",11,"新娘朋友"],["馬弘昇",11,"新娘朋友"],["馬星湘(小孩)",11,"新娘朋友"],["林昱汝",11,"新娘朋友"],["賴薇竹",11,"新娘朋友"],["魏郁珈",11,"新娘朋友"],["黃沐涵",11,"新娘朋友"],["林奕",11,"新娘朋友"],["巫明舉",11,"新娘朋友"],
-      ["廖政威",12,"流星家族"],["林佳瑜",12,"流星家族"],["林牧翰",12,"流星家族"],["吳仁傑",12,"流星家族"],["張怡親",12,"流星家族"],["張家鳴",12,"流星家族"],["趙育進",12,"流星家族"],["張耀宇",12,"流星家族"],["林威州",12,"流星家族"],["劉遠楨教授*",12,"流星家族"],
-      ["陳偉盛",13,"新娘親友1"],["洪宜君",13,"新娘親友1"],["陳姿妍(小孩)",13,"新娘親友1"],["陳泠君",13,"新娘親友1"],["謝宗穎",13,"新娘親友1"],["蔡瑞鳳",13,"新娘親友1"],["尤惠明",13,"新娘親友1"],["蔡瑞龍",13,"新娘親友1"],["南靜婷",13,"新娘親友1"],["蔡宜臻",13,"新娘親友1"],
-      ["陳柏男",14,"新娘親友2"],["黃淑娟",14,"新娘親友2"],["陳羿妃(小孩)",14,"新娘親友2"],["陳楷丞(小孩)",14,"新娘親友2"],["蔡佾璋",14,"新娘親友2"],["邱淑瑜",14,"新娘親友2"],["蔡淑惠",14,"新娘親友2"],["蔡春財",14,"新娘親友2"],["許秀英",14,"新娘親友2"],
-      ["黃耀增",15,"新娘親友3"],["周彥岭",15,"新娘親友3"],["張亦舒",15,"新娘親友3"],["楊佳欣",15,"新娘親友3"],["魏巧宜",15,"新娘親友3"],["張雅雪",15,"新娘親友3"],["張小妹",15,"新娘親友3"],["林曉怡",15,"新娘親友3"],["陳佩璇",15,"新娘親友3"],["陳佩璇小孩",15,"新娘親友3"],
-      ["陳澤山",16,"新娘親友4"],["陳柏瑋",16,"新娘親友4"],["陳宜歆",16,"新娘親友4"],["陳煜棠(小孩)",16,"新娘親友4"],["陳澤泰",16,"新娘親友4"],["林素貞",16,"新娘親友4"],["陳佳欣",16,"新娘親友4"],["陳澤春",16,"新娘親友4"],
-      ["蔡淑娟",17,"新娘親友5"],["吳民治",17,"新娘親友5"],["吳品臻(小孩)",17,"新娘親友5"],["吳品曈(小孩)",17,"新娘親友5"],["江麗華",17,"新娘親友5"],["莉亞",17,"新娘親友5"],["蔡政勳",17,"新娘親友5"],["李昀蔚",17,"新娘親友5"],["蔡承佑(小孩)",17,"新娘親友5"],["蔡宸叡(小孩)",17,"新娘親友5"],
-      ["陳美凰",18,"新娘親友6"],["張正庭",18,"新娘親友6"],["陳立婷",18,"新娘親友6"],["楊朝勇",18,"新娘親友6"],["楊佩臻",18,"新娘親友6"],["楊佩蓉",18,"新娘親友6"],["蔡淑玲",18,"新娘親友6"],["何振強",18,"新娘親友6"],["何珞語(小孩)",18,"新娘親友6"],["何浩語(小孩)",18,"新娘親友6"],
-      ["江昱德",19,"外教會一家親"],["林怡萱",19,"外教會一家親"],["黃俞嘉",19,"外教會一家親"],["陳東隆",19,"外教會一家親"],["鄭珍宜",19,"外教會一家親"],["周采蓉",19,"外教會一家親"],["薛宇哲",19,"外教會一家親"],["朱孟庭",19,"外教會一家親"],["曹逸伶",19,"外教會一家親"],
-      ["程以婷",20,"榮星大家庭1"],["簡秀梅",20,"榮星大家庭1"],["鄧玉秋",20,"榮星大家庭1"],["吳思瑾",20,"榮星大家庭1"],["吳慧珍",20,"榮星大家庭1"],["許雅苓",20,"榮星大家庭1"],["傅俊凱",20,"榮星大家庭1"],["賴映辰",20,"榮星大家庭1"],["廖韻恩",20,"榮星大家庭1"],["陳佳琳",20,"榮星大家庭1"],
-      ["符明勝",21,"榮星大家庭2"],["廖凰吟",21,"榮星大家庭2"],["陳鏡芬",21,"榮星大家庭2"],["連聖義",21,"榮星大家庭2"],["郭憶婷",21,"榮星大家庭2"],["楊月賢",21,"榮星大家庭2"],["陳為秀",21,"榮星大家庭2"],["陳秀麗",21,"榮星大家庭2"],["黃瑞雪",21,"榮星大家庭2"],
-      ["廖欣怡",22,"榮星大家庭3+高中同學"],["蔡家瑋",22,"榮星大家庭3+高中同學"],["席佩雯(小囓)",22,"榮星大家庭3+高中同學"],["黃聖翔",22,"榮星大家庭3+高中同學"],["李旻暄",22,"榮星大家庭3+高中同學"],["黃喜&黃盼",22,"榮星大家庭3+高中同學"],["鄭伃婷",22,"榮星大家庭3+高中同學"],["大江榮年",22,"榮星大家庭3+高中同學"],["鍾沛奇",22,"榮星大家庭3+高中同學"],["賴培修",22,"榮星大家庭3+高中同學"],["李思樺",22,"榮星大家庭3+高中同學"],
-      ["謝育珊",23,"榮星大家庭4"],["劉祐豪",23,"榮星大家庭4"],["周宇倫",23,"榮星大家庭4"],["林佳誼",23,"榮星大家庭4"],["陳怡仲",23,"榮星大家庭4"],["Linda",23,"榮星大家庭4"],["李念慈",23,"榮星大家庭4"],["黃敬惠",23,"榮星大家庭4"],["温羿婷",23,"榮星大家庭4"],["陳文晴",23,"榮星大家庭4"],
-      ["黃品繻",24,"榮星大家庭5"],["楊鎭源",24,"榮星大家庭5"],["陳冠傑",24,"榮星大家庭5"],["張家荃",24,"榮星大家庭5"],["游俊旗",24,"榮星大家庭5"],["顧桂榮",24,"榮星大家庭5"],["陳以理",24,"榮星大家庭5"],["陳奎延",24,"榮星大家庭5"],["程珮綸(Una)",24,"榮星大家庭5"],["林永約",24,"榮星大家庭5"],
-      ["許夏賓",25,"榮星大家庭6"],["林吟潔",25,"榮星大家庭6"],["鄭歆樺",25,"榮星大家庭6"],["葉頌興",25,"榮星大家庭6"],["陳乙瑄",25,"榮星大家庭6"],["林秋冠",25,"榮星大家庭6"],["鄭淑芬",25,"榮星大家庭6"],["陳威勳",25,"榮星大家庭6"],["黃巧馨",25,"榮星大家庭6"],["邱彥瑋",25,"榮星大家庭6"],["邱主竭(小孩)",25,"榮星大家庭6"]
+      { id: 1, name: "新郎", table: 1, group: "主桌" },
+      { id: 2, name: "新娘", table: 1, group: "主桌" },
+      { id: 3, name: "新郎媽媽", table: 1, group: "主桌" },
+      { id: 4, name: "昶佑外公", table: 1, group: "主桌" },
+      { id: 5, name: "昶佑外婆", table: 1, group: "主桌" },
+      { id: 6, name: "江偉昌", table: 1, group: "主桌" },
+      { id: 7, name: "洪宜均", table: 1, group: "主桌" },
+      { id: 8, name: "新娘媽媽", table: 1, group: "主桌" },
+      { id: 9, name: "新娘爸爸", table: 1, group: "主桌" },
+      { id: 10, name: "新娘阿嬤", table: 1, group: "主桌" },
+      { id: 11, name: "新娘阿公", table: 1, group: "主桌" },
+      { id: 12, name: "新娘舅舅", table: 1, group: "主桌" },
+      { id: 13, name: "簡凡恩", table: 2, group: "新郎家人1" },
+      { id: 14, name: "簡予希", table: 2, group: "新郎家人1" },
+      { id: 15, name: "洪耿強", table: 2, group: "新郎家人1" },
+      { id: 16, name: "江晟愷", table: 2, group: "新郎家人1" },
+      { id: 17, name: "江芯辰", table: 2, group: "新郎家人1" },
+      { id: 18, name: "大姑姑", table: 2, group: "新郎家人1" },
+      { id: 19, name: "球球", table: 2, group: "新郎家人1" },
+      { id: 20, name: "新郎弟弟", table: 2, group: "新郎家人1" },
+      { id: 21, name: "Vivi阿姨", table: 3, group: "新郎家人2" },
+      { id: 22, name: "簡士祥", table: 3, group: "新郎家人2" },
+      { id: 23, name: "Kimi 阿姨", table: 3, group: "新郎家人2" },
+      { id: 24, name: "吳叔叔(Kimi 阿姨老公)", table: 3, group: "新郎家人2" },
+      { id: 25, name: "偉益舅舅", table: 3, group: "新郎家人2" },
+      { id: 26, name: "阿丁", table: 3, group: "新郎家人2" },
+      { id: 27, name: "瑞雲", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 28, name: "黃哥", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 29, name: "黃姊", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 30, name: "林哥", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 31, name: "林姐", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 32, name: "淑慎", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 33, name: "鈴莉", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 34, name: "麗文", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 35, name: "鵬程", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 36, name: "佩伶", table: 4, group: "新竹錫安使徒國度中心1" },
+      { id: 37, name: "紅魚", table: 5, group: "新郎大學同學朋友" },
+      { id: 38, name: "王澤倫(紅魚老公)", table: 5, group: "新郎大學同學朋友" },
+      { id: 39, name: "謝書豪", table: 5, group: "新郎大學同學朋友" },
+      { id: 40, name: "周宛瑩", table: 5, group: "新郎大學同學朋友" },
+      { id: 41, name: "王冠軒", table: 5, group: "新郎大學同學朋友" },
+      { id: 42, name: "許瑜瑄", table: 5, group: "新郎大學同學朋友" },
+      { id: 43, name: "郭宣廷(瑜瑄男友)", table: 5, group: "新郎大學同學朋友" },
+      { id: 44, name: "鄧敏如", table: 5, group: "新郎大學同學朋友" },
+      { id: 45, name: "黃天羽", table: 5, group: "新郎大學同學朋友" },
+      { id: 46, name: "馮全", table: 5, group: "新郎大學同學朋友" },
+      { id: 47, name: "江淑鶯(大姐牧師)", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 48, name: "盧文儀牧師", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 49, name: "盧文儀家人", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 50, name: "張雅筠", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 51, name: "鳳生區牧", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 52, name: "古姐", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 53, name: "呂哥(古姊老公)", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 54, name: "古姊家人1", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 55, name: "古姊家人2", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 56, name: "古姊家人3", table: 6, group: "新竹錫安使徒國度中心2" },
+      { id: 57, name: "Aldvin Derrick(楊金高)", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 58, name: "Grace(汪彤)", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 59, name: "Yunching(黃筠卿)", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 60, name: "Alice(劉愛慈)", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 61, name: "呂凱立", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 62, name: "Naomi", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 63, name: "黃姿穎", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 64, name: "李珮毓", table: 7, group: "BSSM+台北靈糧堂" },
+      { id: 65, name: "趙偉成(Peter)", table: 8, group: "台北靈糧堂同工" },
+      { id: 66, name: "陳怡怜", table: 8, group: "台北靈糧堂同工" },
+      { id: 67, name: "吳宏祺(Alex)", table: 8, group: "台北靈糧堂同工" },
+      { id: 68, name: "張豫慧", table: 8, group: "台北靈糧堂同工" },
+      { id: 69, name: "李珮菁", table: 8, group: "台北靈糧堂同工" },
+      { id: 70, name: "賴秋玲", table: 8, group: "台北靈糧堂同工" },
+      { id: 71, name: "許家鳳", table: 8, group: "台北靈糧堂同工" },
+      { id: 72, name: "廖學敏", table: 8, group: "台北靈糧堂同工" },
+      { id: 73, name: "陳曉平Aiko", table: 8, group: "台北靈糧堂同工" },
+      { id: 74, name: "陳曉平朋友", table: 8, group: "台北靈糧堂同工" },
+      { id: 75, name: "高廉程", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 76, name: "Elva", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 77, name: "Minnie", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 78, name: "龍辭鈞", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 79, name: "IVY", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 80, name: "董佳音", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 81, name: "羅正", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 82, name: "劉慧怡(Kay)", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 83, name: "傅毓庭", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 84, name: "陳穎文", table: 9, group: "毫無隱藏家人+台北靈糧堂" },
+      { id: 85, name: "倪士杰", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 86, name: "麥豪麟", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 87, name: "戴詩庭", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 88, name: "李詠絮", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 89, name: "祈偉", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 90, name: "陳偉立", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 91, name: "沈庭瑀", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 92, name: "魏弘傑", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 93, name: "崔廼萱", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 94, name: "李碩傑(Nick)", table: 10, group: "新郎國中好朋友+台北靈糧堂" },
+      { id: 95, name: "曾珮瑜", table: 11, group: "新娘朋友" },
+      { id: 96, name: "陳煜君", table: 11, group: "新娘朋友" },
+      { id: 97, name: "吳家竹", table: 11, group: "新娘朋友" },
+      { id: 98, name: "馬弘昇", table: 11, group: "新娘朋友" },
+      { id: 99, name: "馬星湘(小孩)", table: 11, group: "新娘朋友" },
+      { id: 100, name: "林昱汝", table: 11, group: "新娘朋友" },
+      { id: 101, name: "賴薇竹", table: 11, group: "新娘朋友" },
+      { id: 102, name: "魏郁珈", table: 11, group: "新娘朋友" },
+      { id: 103, name: "黃沐涵", table: 11, group: "新娘朋友" },
+      { id: 104, name: "林奕", table: 11, group: "新娘朋友" },
+      { id: 105, name: "巫明舉", table: 11, group: "新娘朋友" },
+      { id: 106, name: "廖政威", table: 12, group: "流星家族" },
+      { id: 107, name: "林佳瑜", table: 12, group: "流星家族" },
+      { id: 108, name: "林牧翰", table: 12, group: "流星家族" },
+      { id: 109, name: "吳仁傑", table: 12, group: "流星家族" },
+      { id: 110, name: "張怡親", table: 12, group: "流星家族" },
+      { id: 111, name: "張家鳴", table: 12, group: "流星家族" },
+      { id: 112, name: "趙育進", table: 12, group: "流星家族" },
+      { id: 113, name: "張耀宇", table: 12, group: "流星家族" },
+      { id: 114, name: "林威州", table: 12, group: "流星家族" },
+      { id: 115, name: "劉遠楨教授*", table: 12, group: "流星家族" },
+      { id: 116, name: "陳偉盛", table: 13, group: "新娘親友1" },
+      { id: 117, name: "洪宜君", table: 13, group: "新娘親友1" },
+      { id: 118, name: "陳姿妍(小孩)", table: 13, group: "新娘親友1" },
+      { id: 119, name: "陳泠君", table: 13, group: "新娘親友1" },
+      { id: 120, name: "謝宗穎", table: 13, group: "新娘親友1" },
+      { id: 121, name: "蔡瑞鳳", table: 13, group: "新娘親友1" },
+      { id: 122, name: "尤惠明", table: 13, group: "新娘親友1" },
+      { id: 123, name: "蔡瑞龍", table: 13, group: "新娘親友1" },
+      { id: 124, name: "南靜婷", table: 13, group: "新娘親友1" },
+      { id: 125, name: "蔡宜臻", table: 13, group: "新娘親友1" },
+      { id: 126, name: "陳柏男", table: 14, group: "新娘親友2" },
+      { id: 127, name: "黃淑娟", table: 14, group: "新娘親友2" },
+      { id: 128, name: "陳羿妃(小孩)", table: 14, group: "新娘親友2" },
+      { id: 129, name: "陳楷丞(小孩)", table: 14, group: "新娘親友2" },
+      { id: 130, name: "蔡佾璋", table: 14, group: "新娘親友2" },
+      { id: 131, name: "邱淑瑜", table: 14, group: "新娘親友2" },
+      { id: 132, name: "蔡淑惠", table: 14, group: "新娘親友2" },
+      { id: 133, name: "蔡春財", table: 14, group: "新娘親友2" },
+      { id: 134, name: "許秀英", table: 14, group: "新娘親友2" },
+      { id: 135, name: "黃耀增", table: 15, group: "新娘親友3" },
+      { id: 136, name: "周彥岭", table: 15, group: "新娘親友3" },
+      { id: 137, name: "張亦舒", table: 15, group: "新娘親友3" },
+      { id: 138, name: "楊佳欣", table: 15, group: "新娘親友3" },
+      { id: 139, name: "魏巧宜", table: 15, group: "新娘親友3" },
+      { id: 140, name: "張雅雪", table: 15, group: "新娘親友3" },
+      { id: 141, name: "張小妹", table: 15, group: "新娘親友3" },
+      { id: 142, name: "林曉怡", table: 15, group: "新娘親友3" },
+      { id: 143, name: "陳佩璇", table: 15, group: "新娘親友3" },
+      { id: 144, name: "陳佩璇小孩", table: 15, group: "新娘親友3" },
+      { id: 145, name: "陳澤山", table: 16, group: "新娘親友4" },
+      { id: 146, name: "陳柏瑋", table: 16, group: "新娘親友4" },
+      { id: 147, name: "陳宜歆", table: 16, group: "新娘親友4" },
+      { id: 148, name: "陳煜棠(小孩)", table: 16, group: "新娘親友4" },
+      { id: 149, name: "陳澤泰", table: 16, group: "新娘親友4" },
+      { id: 150, name: "林素貞", table: 16, group: "新娘親友4" },
+      { id: 151, name: "陳佳欣", table: 16, group: "新娘親友4" },
+      { id: 152, name: "陳澤春", table: 16, group: "新娘親友4" },
+      { id: 153, name: "蔡淑娟", table: 17, group: "新娘親友5" },
+      { id: 154, name: "吳民治", table: 17, group: "新娘親友5" },
+      { id: 155, name: "吳品臻(小孩)", table: 17, group: "新娘親友5" },
+      { id: 156, name: "吳品曈(小孩)", table: 17, group: "新娘親友5" },
+      { id: 157, name: "江麗華", table: 17, group: "新娘親友5" },
+      { id: 158, name: "莉亞", table: 17, group: "新娘親友5" },
+      { id: 159, name: "蔡政勳", table: 17, group: "新娘親友5" },
+      { id: 160, name: "李昀蔚", table: 17, group: "新娘親友5" },
+      { id: 161, name: "蔡承佑(小孩)", table: 17, group: "新娘親友5" },
+      { id: 162, name: "蔡宸叡(小孩)", table: 17, group: "新娘親友5" },
+      { id: 163, name: "陳美凰", table: 18, group: "新娘親友6" },
+      { id: 164, name: "張正庭", table: 18, group: "新娘親友6" },
+      { id: 165, name: "陳立婷", table: 18, group: "新娘親友6" },
+      { id: 166, name: "楊朝勇", table: 18, group: "新娘親友6" },
+      { id: 167, name: "楊佩臻", table: 18, group: "新娘親友6" },
+      { id: 168, name: "楊佩蓉", table: 18, group: "新娘親友6" },
+      { id: 169, name: "蔡淑玲", table: 18, group: "新娘親友6" },
+      { id: 170, name: "何振強", table: 18, group: "新娘親友6" },
+      { id: 171, name: "何珞語(小孩)", table: 18, group: "新娘親友6" },
+      { id: 172, name: "何浩語(小孩)", table: 18, group: "新娘親友6" },
+      { id: 173, name: "江昱德", table: 19, group: "外教會一家親" },
+      { id: 174, name: "林怡萱", table: 19, group: "外教會一家親" },
+      { id: 175, name: "黃俞嘉", table: 19, group: "外教會一家親" },
+      { id: 176, name: "陳東隆", table: 19, group: "外教會一家親" },
+      { id: 177, name: "鄭珍宜", table: 19, group: "外教會一家親" },
+      { id: 178, name: "周采蓉", table: 19, group: "外教會一家親" },
+      { id: 179, name: "薛宇哲", table: 19, group: "外教會一家親" },
+      { id: 180, name: "朱孟庭", table: 19, group: "外教會一家親" },
+      { id: 181, name: "曹逸伶", table: 19, group: "外教會一家親" },
+      { id: 182, name: "程以婷", table: 20, group: "榮星大家庭1" },
+      { id: 183, name: "簡秀梅", table: 20, group: "榮星大家庭1" },
+      { id: 184, name: "鄧玉秋", table: 20, group: "榮星大家庭1" },
+      { id: 185, name: "吳思瑾", table: 20, group: "榮星大家庭1" },
+      { id: 186, name: "吳慧珍", table: 20, group: "榮星大家庭1" },
+      { id: 187, name: "許雅苓", table: 20, group: "榮星大家庭1" },
+      { id: 188, name: "傅俊凱", table: 20, group: "榮星大家庭1" },
+      { id: 189, name: "賴映辰", table: 20, group: "榮星大家庭1" },
+      { id: 190, name: "廖韻恩", table: 20, group: "榮星大家庭1" },
+      { id: 191, name: "陳佳琳", table: 20, group: "榮星大家庭1" },
+      { id: 192, name: "符明勝", table: 21, group: "榮星大家庭2" },
+      { id: 193, name: "廖凰吟", table: 21, group: "榮星大家庭2" },
+      { id: 194, name: "陳鏡芬", table: 21, group: "榮星大家庭2" },
+      { id: 195, name: "連聖義", table: 21, group: "榮星大家庭2" },
+      { id: 196, name: "郭憶婷", table: 21, group: "榮星大家庭2" },
+      { id: 197, name: "楊月賢", table: 21, group: "榮星大家庭2" },
+      { id: 198, name: "陳為秀", table: 21, group: "榮星大家庭2" },
+      { id: 199, name: "陳秀麗", table: 21, group: "榮星大家庭2" },
+      { id: 200, name: "黃瑞雪", table: 21, group: "榮星大家庭2" },
+      { id: 201, name: "廖欣怡", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 202, name: "蔡家瑋", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 203, name: "席佩雯(小囓)", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 204, name: "黃聖翔", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 205, name: "李旻暄", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 206, name: "黃喜&黃盼", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 207, name: "鄭伃婷", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 208, name: "大江榮年", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 209, name: "鍾沛奇", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 210, name: "賴培修", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 211, name: "李思樺", table: 22, group: "榮星大家庭3+高中同學" },
+      { id: 212, name: "謝育珊", table: 23, group: "榮星大家庭4" },
+      { id: 213, name: "劉祐豪", table: 23, group: "榮星大家庭4" },
+      { id: 214, name: "周宇倫", table: 23, group: "榮星大家庭4" },
+      { id: 215, name: "林佳誼", table: 23, group: "榮星大家庭4" },
+      { id: 216, name: "陳怡仲", table: 23, group: "榮星大家庭4" },
+      { id: 217, name: "Linda", table: 23, group: "榮星大家庭4" },
+      { id: 218, name: "李念慈", table: 23, group: "榮星大家庭4" },
+      { id: 219, name: "黃敬惠", table: 23, group: "榮星大家庭4" },
+      { id: 220, name: "温羿婷", table: 23, group: "榮星大家庭4" },
+      { id: 221, name: "陳文晴", table: 23, group: "榮星大家庭4" },
+      { id: 222, name: "黃品繻", table: 24, group: "榮星大家庭5" },
+      { id: 223, name: "楊鎭源", table: 24, group: "榮星大家庭5" },
+      { id: 224, name: "陳冠傑", table: 24, group: "榮星大家庭5" },
+      { id: 225, name: "張家荃", table: 24, group: "榮星大家庭5" },
+      { id: 226, name: "游俊旗", table: 24, group: "榮星大家庭5" },
+      { id: 227, name: "顧桂榮", table: 24, group: "榮星大家庭5" },
+      { id: 228, name: "陳以理", table: 24, group: "榮星大家庭5" },
+      { id: 229, name: "陳奎延", table: 24, group: "榮星大家庭5" },
+      { id: 230, name: "程珮綸(Una)", table: 24, group: "榮星大家庭5" },
+      { id: 231, name: "林永約", table: 24, group: "榮星大家庭5" },
+      { id: 232, name: "許夏賓", table: 25, group: "榮星大家庭6" },
+      { id: 233, name: "林吟潔", table: 25, group: "榮星大家庭6" },
+      { id: 234, name: "鄭歆樺", table: 25, group: "榮星大家庭6" },
+      { id: 235, name: "葉頌興", table: 25, group: "榮星大家庭6" },
+      { id: 236, name: "陳乙瑄", table: 25, group: "榮星大家庭6" },
+      { id: 237, name: "林秋冠", table: 25, group: "榮星大家庭6" },
+      { id: 238, name: "鄭淑芬", table: 25, group: "榮星大家庭6" },
+      { id: 239, name: "陳威勳", table: 25, group: "榮星大家庭6" },
+      { id: 240, name: "黃巧馨", table: 25, group: "榮星大家庭6" },
+      { id: 241, name: "邱彥瑋", table: 25, group: "榮星大家庭6" },
+      { id: 242, name: "邱主竭(小孩)", table: 25, group: "榮星大家庭6" }
     ];
 
-    // 桌位座標百分比 (適應直態螢幕)
-    const tablePositions = {
-      1: { top: '8%', left: '39%', isMain: true }, // 主桌更靠近舞台
-      2: { top: '15%', left: '20%' }, 3: { top: '15%', left: '38%' },
-      13: { top: '15%', left: '60%' }, 14: { top: '15%', left: '78%' },
-      
-      4: { top: '27%', left: '20%' }, 5: { top: '27%', left: '38%' },
-      16: { top: '27%', left: '60%' }, 17: { top: '27%', left: '78%' },
-      
-      6: { top: '39%', left: '20%' }, 7: { top: '39%', left: '38%' },
-      19: { top: '39%', left: '60%' }, 20: { top: '39%', left: '78%' },
-      
-      8: { top: '56%', left: '20%' }, 9: { top: '56%', left: '38%' }, 10: { top: '56%', left: '56%' },
-      22: { top: '56%', left: '78%' },
-      
-      11: { top: '68%', left: '32%' }, 12: { top: '68%', left: '50%' },
-      23: { top: '68%', left: '78%' },
-      
-      24: { top: '80%', left: '60%' }, 25: { top: '80%', left: '78%' }
-    };
+    // 初始化狀態
+    let checkedMap = JSON.parse(localStorage.getItem('wedding_checkins') || '{}');
 
-    let guests = rawData.map((item, index) => ({
-      id: index,
-      name: item[0],
-      table: item[1],
-      group: item[2],
-      arrived: false
-    }));
+    function updateStats() {
+      let totalArrived = 0;
+      let tableCounts = {};
 
-    function init() {
-      document.getElementById('total-count').innerText = guests.length;
-      renderTables();
-    }
+      rawData.forEach(guest => {
+        if(!tableCounts[guest.table]) tableCounts[guest.table] = { arrived: 0, total: 0 };
+        tableCounts[guest.table].total++;
+        if(checkedMap[guest.id]) {
+          tableCounts[guest.table].arrived++;
+          totalArrived++;
+        }
+      });
 
-    function renderTables() {
-      const layer = document.getElementById('tables-layer');
-      layer.innerHTML = '';
+      document.getElementById('arrivedCount').innerText = totalArrived;
 
-      for (let i = 1; i <= 25; i++) {
-        const pos = tablePositions[i];
-        if (!pos) continue;
-
-        const tableGuests = guests.filter(g => g.table === i);
-        const arrivedCount = tableGuests.filter(g => g.arrived).length;
-
-        const div = document.createElement('div');
-        div.className = `table-node ${pos.isMain ? 'table-main' : ''}`;
-        div.style.width = pos.isMain ? '60px' : '48px';
-        div.style.height = pos.isMain ? '60px' : '48px';
-        div.style.top = pos.top;
-        div.style.left = pos.left;
-        div.onclick = () => openModal(i);
-
-        const title = i === 1 ? '主桌' : `${i < 10 ? '0' + i : i} 桌`;
-        div.innerHTML = `
-          <div class="table-title">${title}</div>
-          <div class="table-count">${arrivedCount}/${tableGuests.length}人</div>
-        `;
-
-        layer.appendChild(div);
+      for(let t = 1; t <= 25; t++) {
+        const el = document.getElementById(`stat-${t}`);
+        if(el && tableCounts[t]) {
+          el.innerText = `${tableCounts[t].arrived}/${tableCounts[t].total}`;
+        }
       }
     }
 
-    function updateStats() {
-      const arrivedTotal = guests.filter(g => g.arrived).length;
-      document.getElementById('arrived-count').innerText = arrivedTotal;
-      renderTables();
+    function toggleCheckin(id) {
+      checkedMap[id] = !checkedMap[id];
+      localStorage.setItem('wedding_checkins', JSON.stringify(checkedMap));
+      updateStats();
+      
+      // 更新 modal 中對應的按鈕狀態
+      const btn = document.getElementById(`check-btn-${id}`);
+      const item = document.getElementById(`guest-item-${id}`);
+      if(btn && item) {
+        if(checkedMap[id]) {
+          btn.innerText = '取消報到';
+          btn.classList.add('active');
+          item.classList.add('checked-in');
+        } else {
+          btn.innerText = '點擊報到';
+          btn.classList.remove('active');
+          item.classList.remove('checked-in');
+        }
+      }
     }
 
-    let currentTable = null;
-    function openModal(tableNum) {
-      currentTable = tableNum;
-      const modal = document.getElementById('modal-overlay');
-      const title = document.getElementById('modal-title');
-      const body = document.getElementById('modal-body');
+    function openTableModal(tableNum) {
+      const modal = document.getElementById('modalOverlay');
+      const title = document.getElementById('modalTitle');
+      const list = document.getElementById('modalGuestList');
 
-      const tableGuests = guests.filter(g => g.table === tableNum);
-      const groupName = tableGuests[0] ? tableGuests[0].group : '';
-
-      title.innerText = tableNum === 1 ? `主桌 (${groupName})` : `第 ${tableNum} 桌 - ${groupName}`;
+      const guests = rawData.filter(g => g.table === tableNum);
+      const tableName = tableNum === 1 ? '主桌' : `${tableNum.toString().padStart(2, '0')} 桌 (${guests[0]?.group || ''})`;
       
-      body.innerHTML = tableGuests.map(g => `
-        <div class="guest-item">
-          <span>${g.name}</span>
-          <button class="check-btn ${g.arrived ? 'btn-present' : 'btn-absent'}" onclick="toggleArrive(${g.id})">
-            ${g.arrived ? '已報到' : '未報到'}
+      title.innerText = tableName;
+      list.innerHTML = guests.map(g => `
+        <div class="guest-item ${checkedMap[g.id] ? 'checked-in' : ''}" id="guest-item-${g.id}">
+          <div>
+            <div style="font-weight: bold;">${g.name}</div>
+          </div>
+          <button class="check-btn ${checkedMap[g.id] ? 'active' : ''}" id="check-btn-${g.id}" onclick="toggleCheckin(${g.id})">
+            ${checkedMap[g.id] ? '取消報到' : '點擊報到'}
           </button>
         </div>
       `).join('');
@@ -340,32 +469,43 @@
       modal.style.display = 'flex';
     }
 
-    function toggleArrive(guestId) {
-      const guest = guests.find(g => g.id === guestId);
-      if (guest) {
-        guest.arrived = !guest.arrived;
-        updateStats();
-        openModal(currentTable);
-      }
-    }
-
-    function closeModal(e) {
-      if (!e || e.target.id === 'modal-overlay' || e.target.tagName === 'BUTTON') {
-        document.getElementById('modal-overlay').style.display = 'none';
-      }
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
     }
 
     function handleSearch() {
-      const query = document.getElementById('search-input').value.trim();
-      if (!query) return;
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const resultsContainer = document.getElementById('searchResults');
 
-      const found = guests.find(g => g.name.includes(query) || g.table.toString() === query);
-      if (found) {
-        openModal(found.table);
+      if (!query) {
+        resultsContainer.style.display = 'none';
+        return;
+      }
+
+      const matched = rawData.filter(g => 
+        g.name.toLowerCase().includes(query) || 
+        g.table.toString() === query || 
+        g.group.toLowerCase().includes(query)
+      );
+
+      if (matched.length > 0) {
+        resultsContainer.innerHTML = matched.map(g => `
+          <div class="result-item" onclick="openTableModal(${g.table}); document.getElementById('searchResults').style.display='none';">
+            <div class="info">
+              <strong>${g.name}</strong> <span style="font-size: 0.8rem; color: #666;">(${g.group})</span>
+            </div>
+            <div class="tag">${g.table === 1 ? '主桌' : g.table + '桌'}</div>
+          </div>
+        `).join('');
+        resultsContainer.style.display = 'block';
+      } else {
+        resultsContainer.innerHTML = `<div style="padding: 12px; text-align: center; color: #888;">查無結果</div>`;
+        resultsContainer.style.display = 'block';
       }
     }
 
-    init();
+    // 初始化
+    updateStats();
   </script>
 </body>
 </html>
