@@ -663,7 +663,6 @@
           const customTableName = tableNames[item.table] || `第 ${item.table} 桌`;
           const tableText = (item.table === "01") ? "主桌" : `第 ${item.table} 桌 - ${customTableName}`;
           
-          // 找出同桌的所有人，方便招待快速掌握
           const tableGuests = rawGuestData.filter(g => g.table === item.table).map(g => g.name).join("、");
 
           const resDiv = document.createElement("div");
