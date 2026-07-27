@@ -159,7 +159,8 @@
       box-shadow: 0 1px 4px var(--table-shadow);
       transition: all 0.2s ease;
       outline: none;
-      padding: 0;
+      padding: 2px;
+      overflow: hidden;
     }
 
     .table-btn:active {
@@ -182,16 +183,20 @@
 
     .table-btn .number {
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #2b2d42;
-      line-height: 1;
+      line-height: 1.1;
     }
 
     .table-btn .label {
-      font-size: 0.55rem;
+      font-size: 0.45rem;
       color: #8d99ae;
-      margin-top: 2px;
-      transform: scale(0.9);
+      margin-top: 1px;
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .facility-box {
@@ -256,11 +261,12 @@
 
     .main-table .number {
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
     .main-table .label {
-      font-size: 0.55rem;
+      font-size: 0.5rem;
+      color: #ff0054;
     }
 
     .buffet {
@@ -448,9 +454,10 @@
       <div class="facility-box control-panel">控臺</div>
       <div class="facility-box stage">舞 臺</div>
       
+      <!-- 主桌 (01) -->
       <div class="main-table table-node" data-table="01" onclick="openModal('01')">
         <span class="number">主桌</span>
-        <span class="label">01桌</span>
+        <span class="label">主婚人</span>
       </div>
 
       <div class="carpet-v">進場動線</div>
@@ -458,40 +465,41 @@
 
       <div class="facility-box welcome-area">迎賓送客區</div>
 
-      <button class="table-btn table-node t-02" data-table="02" onclick="openModal('02')"><span class="number">02</span></button>
-      <button class="table-btn table-node t-03" data-table="03" onclick="openModal('03')"><span class="number">03</span></button>
-      <button class="table-btn table-node t-04" data-table="04" onclick="openModal('04')"><span class="number">04</span></button>
-      <button class="table-btn table-node t-05" data-table="05" onclick="openModal('05')"><span class="number">05</span></button>
-      <button class="table-btn table-node t-06" data-table="06" onclick="openModal('06')"><span class="number">06</span></button>
-      <button class="table-btn table-node t-07" data-table="07" onclick="openModal('07')"><span class="number">07</span></button>
-      <button class="table-btn table-node t-08" data-table="08" onclick="openModal('08')"><span class="number">08</span></button>
-      <button class="table-btn table-node t-09" data-table="09" onclick="openModal('09')"><span class="number">09</span></button>
-      <button class="table-btn table-node t-10" data-table="10" onclick="openModal('10')"><span class="number">10</span></button>
-      <button class="table-btn table-node t-11" data-table="11" onclick="openModal('11')"><span class="number">11</span></button>
-      <button class="table-btn table-node t-12" data-table="12" onclick="openModal('12')"><span class="number">12</span></button>
+      <!-- 各桌按鈕 (已帶入桌名) -->
+      <button class="table-btn table-node t-02" data-table="02" onclick="openModal('02')"><span class="number">02</span><span class="label">親戚桌</span></button>
+      <button class="table-btn table-node t-03" data-table="03" onclick="openModal('03')"><span class="number">03</span><span class="label">親戚桌</span></button>
+      <button class="table-btn table-node t-04" data-table="04" onclick="openModal('04')"><span class="number">04</span><span class="label">新郎親友</span></button>
+      <button class="table-btn table-node t-05" data-table="05" onclick="openModal('05')"><span class="number">05</span><span class="label">新郎朋友</span></button>
+      <button class="table-btn table-node t-06" data-table="06" onclick="openModal('06')"><span class="number">06</span><span class="label">教會長輩</span></button>
+      <button class="table-btn table-node t-07" data-table="07" onclick="openModal('07')"><span class="number">07</span><span class="label">大學同學</span></button>
+      <button class="table-btn table-node t-08" data-table="08" onclick="openModal('08')"><span class="number">08</span><span class="label">研究所友</span></button>
+      <button class="table-btn table-node t-09" data-table="09" onclick="openModal('09')"><span class="number">09</span><span class="label">同事好友</span></button>
+      <button class="table-btn table-node t-10" data-table="10" onclick="openModal('10')"><span class="number">10</span><span class="label">高中同學</span></button>
+      <button class="table-btn table-node t-11" data-table="11" onclick="openModal('11')"><span class="number">11</span><span class="label">國中同學</span></button>
+      <button class="table-btn table-node t-12" data-table="12" onclick="openModal('12')"><span class="number">12</span><span class="label">研究所友</span></button>
 
-      <button class="table-btn table-node t-13" data-table="13" onclick="openModal('13')"><span class="number">13</span></button>
-      <button class="table-btn table-node t-14" data-table="14" onclick="openModal('14')"><span class="number">14</span></button>
-      <button class="table-btn table-node t-15" data-table="15" onclick="openModal('15')"><span class="number">15</span></button>
-      <button class="table-btn table-node t-16" data-table="16" onclick="openModal('16')"><span class="number">16</span></button>
-      <button class="table-btn table-node t-17" data-table="17" onclick="openModal('17')"><span class="number">17</span></button>
-      <button class="table-btn table-node t-18" data-table="18" onclick="openModal('18')"><span class="number">18</span></button>
-      <button class="table-btn table-node t-19" data-table="19" onclick="openModal('19')"><span class="number">19</span></button>
-      <button class="table-btn table-node t-20" data-table="20" onclick="openModal('20')"><span class="number">20</span></button>
-      <button class="table-btn table-node t-21" data-table="21" onclick="openModal('21')"><span class="number">21</span></button>
+      <button class="table-btn table-node t-13" data-table="13" onclick="openModal('13')"><span class="number">13</span><span class="label">親戚桌</span></button>
+      <button class="table-btn table-node t-14" data-table="14" onclick="openModal('14')"><span class="number">14</span><span class="label">親戚桌</span></button>
+      <button class="table-btn table-node t-15" data-table="15" onclick="openModal('15')"><span class="number">15</span><span class="label">親戚桌</span></button>
+      <button class="table-btn table-node t-16" data-table="16" onclick="openModal('16')"><span class="number">16</span><span class="label">家族長輩</span></button>
+      <button class="table-btn table-node t-17" data-table="17" onclick="openModal('17')"><span class="number">17</span><span class="label">家族長輩</span></button>
+      <button class="table-btn table-node t-18" data-table="18" onclick="openModal('18')"><span class="number">18</span><span class="label">家族長輩</span></button>
+      <button class="table-btn table-node t-19" data-table="19" onclick="openModal('19')"><span class="number">19</span><span class="label">好友桌</span></button>
+      <button class="table-btn table-node t-20" data-table="20" onclick="openModal('20')"><span class="number">20</span><span class="label">好友桌</span></button>
+      <button class="table-btn table-node t-21" data-table="21" onclick="openModal('21')"><span class="number">21</span><span class="label">好友桌</span></button>
       
-      <button class="table-btn table-node t-22" data-table="22" onclick="openModal('22')"><span class="number">22</span></button>
-      <button class="table-btn table-node t-23" data-table="23" onclick="openModal('23')"><span class="number">23</span></button>
+      <button class="table-btn table-node t-22" data-table="22" onclick="openModal('22')"><span class="number">22</span><span class="label">榮星大家庭</span></button>
+      <button class="table-btn table-node t-23" data-table="23" onclick="openModal('23')"><span class="number">23</span><span class="label">榮星大家庭</span></button>
       <button class="table-btn table-node t-27 backup-table" data-table="27" onclick="openModal('27')">
         <span class="number">27</span>
-        <span class="label">預備</span>
+        <span class="label">預備桌</span>
       </button>
 
-      <button class="table-btn table-node t-24" data-table="24" onclick="openModal('24')"><span class="number">24</span></button>
-      <button class="table-btn table-node t-25" data-table="25" onclick="openModal('25')"><span class="number">25</span></button>
+      <button class="table-btn table-node t-24" data-table="24" onclick="openModal('24')"><span class="number">24</span><span class="label">榮星大家庭</span></button>
+      <button class="table-btn table-node t-25" data-table="25" onclick="openModal('25')"><span class="number">25</span><span class="label">榮星大家庭6</span></button>
       <button class="table-btn table-node t-26 backup-table" data-table="26" onclick="openModal('26')">
         <span class="number">26</span>
-        <span class="label">預備</span>
+        <span class="label">預備桌</span>
       </button>
 
       <div class="facility-box buffet">備餐臺</div>
@@ -509,6 +517,37 @@
   </div>
 
   <script>
+    // 桌名對照表
+    const tableNames = {
+      "01": "主桌 (主婚人)",
+      "02": "第 02 桌 (親戚桌)",
+      "03": "第 03 桌 (親戚桌)",
+      "04": "第 04 桌 (新郎親友)",
+      "05": "第 05 桌 (新郎朋友)",
+      "06": "第 06 桌 (教會長輩)",
+      "07": "第 07 桌 (大學同學)",
+      "08": "第 08 桌 (研究所友)",
+      "09": "第 09 桌 (同事好友)",
+      "10": "第 10 桌 (高中同學)",
+      "11": "第 11 桌 (國中同學)",
+      "12": "第 12 桌 (研究所友)",
+      "13": "第 13 桌 (親戚桌)",
+      "14": "第 14 桌 (親戚桌)",
+      "15": "第 15 桌 (親戚桌)",
+      "16": "第 16 桌 (家族長輩)",
+      "17": "第 17 桌 (家族長輩)",
+      "18": "第 18 桌 (家族長輩)",
+      "19": "第 19 桌 (好友桌)",
+      "20": "第 20 桌 (好友桌)",
+      "21": "第 21 桌 (好友桌)",
+      "22": "第 22 桌 (榮星大家庭)",
+      "23": "第 23 桌 (榮星大家庭)",
+      "24": "第 24 桌 (榮星大家庭)",
+      "25": "第 25 桌 (榮星大家庭6)",
+      "26": "第 26 桌 (預備桌)",
+      "27": "第 27 桌 (預備桌)"
+    };
+
     const rawGuestData = [
       { name: "新郎", table: "01" }, { name: "新娘", table: "01" }, { name: "新郎媽媽", table: "01" },
       { name: "昶佑外公", table: "01" }, { name: "昶佑外婆", table: "01" }, { name: "江偉昌", table: "01" },
@@ -631,13 +670,14 @@
           const matchedNode = document.querySelector(`[data-table="${item.table}"]`);
           if (matchedNode) matchedNode.classList.add("highlight");
 
-          const tableText = (item.table === "01") ? "主桌" : `第 ${item.table} 桌`;
+          // 抓取對應桌名
+          const tableDisplayText = tableNames[item.table] ? tableNames[item.table] : `第 ${item.table} 桌`;
 
           const resDiv = document.createElement("div");
           resDiv.className = "search-result-item";
           resDiv.innerHTML = `
             <span class="search-result-name">${item.name}</span>
-            <span class="table-badge">${tableText}</span>
+            <span class="table-badge">${tableDisplayText}</span>
           `;
           resDiv.onclick = () => openModal(item.table);
           resultsContainer.appendChild(resDiv);
@@ -652,7 +692,8 @@
       const title = document.getElementById("modalTitle");
       const listContainer = document.getElementById("guestList");
 
-      title.innerText = (tableNumStr === "01") ? "主桌 (01桌) 同桌賓客" : `第 ${tableNumStr} 桌 同桌賓客`;
+      // 彈窗標題直接帶入完整桌名
+      title.innerText = tableNames[tableNumStr] ? tableNames[tableNumStr] : `第 ${tableNumStr} 桌`;
       listContainer.innerHTML = "";
 
       const guests = rawGuestData.filter(g => g.table === tableNumStr);
