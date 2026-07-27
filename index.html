@@ -2,21 +2,21 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>婚宴招待報到系統</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
-        body { background-color: #f4f6f9; color: #333; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        body { background-color: #f4f6f9; color: #333; padding: 10px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
 
         /* 頂部控制與數據統計區 */
         .header-panel {
-            width: 100%; max-width: 1200px; background: #fff; padding: 15px 20px; border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; display: flex;
-            flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
+            width: 100%; max-width: 1200px; background: #fff; padding: 12px 15px; border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 12px; display: flex;
+            flex-direction: column; gap: 10px; align-items: center;
         }
-        .stats { font-size: 18px; font-weight: bold; color: #2c3e50; }
-        .stats span { color: #e74c3c; font-size: 22px; margin: 0 4px; }
-        .search-box { position: relative; flex-grow: 1; max-width: 400px; }
+        .stats { font-size: 16px; font-weight: bold; color: #2c3e50; text-align: center; }
+        .stats span { color: #e74c3c; font-size: 20px; margin: 0 3px; }
+        .search-box { position: relative; width: 100%; max-width: 500px; }
         .search-box input {
             width: 100%; padding: 10px 15px; border: 2px solid #3498db; border-radius: 25px;
             font-size: 15px; outline: none; transition: 0.3s;
@@ -28,11 +28,20 @@
         .search-item { padding: 10px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .search-item:hover { background-color: #f1f8ff; }
 
+        /* 外層對齊與縮放容器 */
+        .scaler-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: hidden;
+        }
+
         /* 會場地圖容器 */
         .venue-container {
             width: 1200px; height: 850px; background-color: #ffffff; border: 3px solid #d4af37;
             border-radius: 12px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            overflow: hidden; flex-shrink: 0;
+            overflow: hidden; flex-shrink: 0; transform-origin: top center;
         }
 
         /* 設施與設施標籤 */
@@ -87,23 +96,23 @@
         /* 彈窗 Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-            display: none; justify-content: center; align-items: center; z-index: 2000;
+            display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px;
         }
         .modal {
-            background: #fff; width: 90%; max-width: 500px; border-radius: 12px; padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column;
+            background: #fff; width: 100%; max-width: 450px; border-radius: 12px; padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; display: flex; flex-direction: column;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 15px; }
-        .modal-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
+        .modal-title { font-size: 18px; font-weight: bold; color: #2c3e50; }
         .close-btn { font-size: 24px; cursor: pointer; color: #aaa; border: none; background: none; }
         .modal-body { overflow-y: auto; flex-grow: 1; }
-        .guest-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f9f9f9; }
+        .guest-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
         .guest-info { display: flex; flex-direction: column; }
-        .guest-name { font-size: 16px; font-weight: bold; }
+        .guest-name { font-size: 15px; font-weight: bold; }
         .guest-cat { font-size: 12px; color: #7f8c8d; }
         .checkin-btn {
             padding: 6px 14px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
-            background-color: #e74c3c; color: #fff; transition: 0.2s;
+            background-color: #e74c3c; color: #fff; transition: 0.2s; font-size: 13px;
         }
         .checkin-btn.checked { background-color: #2ecc71; }
     </style>
@@ -115,21 +124,23 @@
         實到人數：<span id="arrived-count">0</span> / <span id="total-count">0</span> 人
     </div>
     <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 搜尋賓客姓名、桌號或類別..." oninput="handleSearch()">
+        <input type="text" id="search-input" placeholder="🔍 搜尋賓客姓名、桌號..." oninput="handleSearch()">
         <div id="search-results" class="search-results" style="display: none;"></div>
     </div>
 </div>
 
-<div class="venue-container" id="venue">
-    <div class="stage">舞 臺</div>
-    <div class="control-desk">控 臺</div>
-    <div class="welcome-area">迎賓送客區</div>
-    <div class="pantry-area">備 餐 臺</div>
+<div class="scaler-wrapper" id="scaler-wrapper">
+    <div class="venue-container" id="venue">
+        <div class="stage">舞 臺</div>
+        <div class="control-desk">控 臺</div>
+        <div class="welcome-area">迎賓送客區</div>
+        <div class="pantry-area">備 餐 臺</div>
 
-    <div class="path-line-h"></div>
-    <div class="path-line-v"></div>
-    <div class="walkway-label walkway-main">進場走道</div>
-    <div class="walkway-label walkway-side">進場走道</div>
+        <div class="path-line-h"></div>
+        <div class="path-line-v"></div>
+        <div class="walkway-label walkway-main">進場走道</div>
+        <div class="walkway-label walkway-side">進場走道</div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="modal-overlay">
@@ -143,7 +154,6 @@
 </div>
 
 <script>
-// 賓客名單與座位資料
 const rawGuestData = [
     { name: "新郎", table: 1, cat: "主桌" }, { name: "新娘", table: 1, cat: "主桌" }, { name: "新郎媽媽", table: 1, cat: "主桌" }, { name: "昶佑外公", table: 1, cat: "主桌" }, { name: "昶佑外婆", table: 1, cat: "主桌" }, { name: "江偉昌", table: 1, cat: "主桌" }, { name: "洪宜均", table: 1, cat: "主桌" }, { name: "新娘媽媽", table: 1, cat: "主桌" }, { name: "新娘爸爸", table: 1, cat: "主桌" }, { name: "新娘阿嬤", table: 1, cat: "主桌" }, { name: "新娘阿公", table: 1, cat: "主桌" }, { name: "新娘舅舅", table: 1, cat: "主桌" },
     { name: "簡凡恩", table: 2, cat: "新郎家人1" }, { name: "簡予希", table: 2, cat: "新郎家人1" }, { name: "洪耿強", table: 2, cat: "新郎家人1" }, { name: "江晟愷", table: 2, cat: "新郎家人1" }, { name: "江芯辰", table: 2, cat: "新郎家人1" }, { name: "大姑姑", table: 2, cat: "新郎家人1" }, { name: "球球", table: 2, cat: "新郎家人1" }, { name: "新郎弟弟", table: 2, cat: "新郎家人1" },
@@ -172,25 +182,19 @@ const rawGuestData = [
     { name: "許夏賓", table: 25, cat: "榮星大家庭6" }, { name: "林吟潔", table: 25, cat: "榮星大家庭6" }, { name: "鄭歆樺", table: 25, cat: "榮星大家庭6" }, { name: "葉頌興", table: 25, cat: "榮星大家庭6" }, { name: "陳乙瑄", table: 25, cat: "榮星大家庭6" }, { name: "林秋冠", table: 25, cat: "榮星大家庭6" }, { name: "鄭淑芬", table: 25, cat: "榮星大家庭6" }, { name: "陳威勳", table: 25, cat: "榮星大家庭6" }, { name: "黃巧馨", table: 25, cat: "榮星大家庭6" }, { name: "邱彥瑋", table: 25, cat: "榮星大家庭6" }, { name: "邱主竭(小孩)", table: 25, cat: "榮星大家庭6" }
 ];
 
-// 桌子座標及佈局設定
 const tableLayouts = [
     { id: 1, name: "主桌", type: "main", top: 120, left: 468 },
-    // 左側桌區
     { id: 2, name: "02 桌", type: "guest", top: 110, left: 230 },
     { id: 3, name: "03 桌", type: "guest", top: 110, left: 340 },
     { id: 4, name: "04 桌", type: "guest", top: 230, left: 230 },
     { id: 5, name: "05 桌", type: "guest", top: 230, left: 340 },
     { id: 6, name: "06 桌", type: "guest", top: 350, left: 230 },
     { id: 7, name: "07 桌", type: "guest", top: 350, left: 340 },
-    // 橫向走道下方 (第四列)
     { id: 8, name: "08 桌", type: "guest", top: 560, left: 230 },
     { id: 9, name: "09 桌", type: "guest", top: 560, left: 340 },
     { id: 10, name: "10 桌", type: "guest", top: 560, left: 450 },
-    // 第五列 (延伸)
     { id: 11, name: "11 桌", type: "guest", top: 680, left: 340 },
     { id: 12, name: "12 桌", type: "guest", top: 680, left: 450 },
-
-    // 右側桌區
     { id: 13, name: "13 桌", type: "guest", top: 110, left: 660 },
     { id: 14, name: "14 桌", type: "guest", top: 110, left: 770 },
     { id: 15, name: "15 桌", type: "guest", top: 110, left: 880 },
@@ -200,22 +204,35 @@ const tableLayouts = [
     { id: 19, name: "19 桌", type: "guest", top: 350, left: 660 },
     { id: 20, name: "20 桌", type: "guest", top: 350, left: 770 },
     { id: 21, name: "21 桌", type: "guest", top: 350, left: 880 },
-    // 第四列 (預備桌區)
     { id: 22, name: "22 桌", type: "guest", top: 470, left: 660 },
     { id: 23, name: "23 桌", type: "guest", top: 470, left: 770 },
     { id: 27, name: "27 桌", type: "backup", top: 470, left: 880 },
-    // 第五列
     { id: 24, name: "24 桌", type: "guest", top: 590, left: 660 },
     { id: 25, name: "25 桌", type: "guest", top: 590, left: 770 },
     { id: 26, name: "26 桌", type: "backup", top: 590, left: 880 }
 ];
 
-// 初始化報到狀態
 let checkInStatus = JSON.parse(localStorage.getItem('wedding_checkin_status')) || {};
+
+function autoScale() {
+    const venue = document.getElementById('venue');
+    const wrapper = document.getElementById('scaler-wrapper');
+    const screenWidth = window.innerWidth - 20; // 扣除 padding
+    const baseWidth = 1200;
+    const baseHeight = 850;
+
+    let scale = screenWidth / baseWidth;
+    if (scale > 1) scale = 1; // 電腦大螢幕保持 1:1
+
+    venue.style.transform = `scale(${scale})`;
+    wrapper.style.height = `${baseHeight * scale}px`;
+}
 
 function init() {
     renderVenue();
     updateStats();
+    autoScale();
+    window.addEventListener('resize', autoScale);
 }
 
 function renderVenue() {
@@ -281,7 +298,6 @@ function openModal(tableId) {
 
 function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
-    // 重新渲染桌位狀態數字
     document.getElementById('venue').querySelectorAll('.table').forEach(e => e.remove());
     renderVenue();
 }
