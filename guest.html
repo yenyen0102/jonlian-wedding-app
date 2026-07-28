@@ -119,7 +119,7 @@
     .table-badge {
       background-color: #e63946;
       color: white;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       padding: 4px 10px;
       border-radius: 12px;
       font-weight: bold;
@@ -662,8 +662,9 @@
           const matchedNode = document.querySelector(`[data-table="${item.table}"]`);
           if (matchedNode) matchedNode.classList.add("highlight");
 
-          const customTableName = tableNames[item.table] || `第 ${item.table} 桌`;
-          const tableText = (item.table === "01") ? "主桌" : customTableName;
+          const customTableName = tableNames[item.table] || "";
+          // 調整部分：搜尋結果的標籤改為顯示「第 X 桌 - 桌名」
+          const tableText = `第 ${item.table} 桌 - ${customTableName}`;
 
           const resDiv = document.createElement("div");
           resDiv.className = "search-result-item";
