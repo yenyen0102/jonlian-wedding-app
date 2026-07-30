@@ -6,8 +6,8 @@
   <title>婚宴招待點名系統</title>
   <style>
     /* ==========================================
-       1. 基本重置與變數定義
-       ========================================== */
+        1. 基本重置與變數定義
+        ========================================== */
     :root {
       --bg-color: #f4f6f8;
       --primary-color: #3d5a80;
@@ -40,8 +40,8 @@
     }
 
     /* ==========================================
-       2. 頂部搜尋與統計區
-       ========================================== */
+        2. 頂部搜尋與統計區
+        ========================================== */
     .top-search-card {
       background: #ffffff;
       border-radius: 16px;
@@ -163,8 +163,8 @@
     }
 
     /* ==========================================
-       3. 地圖網格
-       ========================================== */
+        3. 地圖網格
+        ========================================== */
     .map-container {
       width: 100%;
       max-width: 480px;
@@ -390,8 +390,8 @@
     .t-26 { grid-column: 8; grid-row: 8; }
 
     /* ==========================================
-       4. 畫面正中央彈窗 Modal
-       ========================================== */
+        4. 畫面正中央彈窗 Modal
+        ========================================== */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -759,6 +759,16 @@
       }
     }
 
+    // 勾選狀態切換
+    function toggleCheck(key, isChecked) {
+      if (isChecked) {
+        checkState[key] = true;
+      } else {
+        delete checkState[key];
+      }
+      updateCheckedCount();
+    }
+
     // 搜尋功能與高亮
     function handleSearch() {
       const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -919,18 +929,11 @@
       }
     }
 
-    function toggleCheck(key, isChecked) {
-      checkState[key] = isChecked;
+    // 初始化執行
+    window.onload = function() {
+      initTablesData();
       updateCheckedCount();
-      // 如果是在搜尋狀態下勾選，同步更新搜尋清單畫面
-      const currentKeyword = document.getElementById("searchInput").value.trim();
-      if (currentKeyword && document.getElementById("modalOverlay").classList.contains("active") === false) {
-        handleSearch();
-      }
-    }
-
-    // 初始化
-    initTablesData();
+    };
   </script>
 </body>
 </html>
