@@ -519,7 +519,7 @@
       "06": "新竹錫安使徒國度中心2",
       "07": "BSSM+台北靈糧堂",
       "08": "台北靈糧堂同工",
-      "09": "新郎毫無隱藏家人+台北靈糧堂",
+      "09": "毫無隱藏家人+台北靈糧堂",
       "10": "新郎國中好朋友+台北靈糧堂",
       "11": "新娘朋友",
       "12": "流星家族",
@@ -589,21 +589,19 @@
       { name: "吳仁傑", table: "12" }, { name: "張怡親", table: "12" }, { name: "張家鳴", table: "12" },
       { name: "趙育進", table: "12" }, { name: "張耀宇", table: "12" }, { name: "林威州", table: "12" }, { name: "劉遠楨教授*", table: "12" },
       
-      { name: "陳偉盛", table: "13" }, { name: "洪宜君", table: "13" }, { name: "陳姿妍(小孩)", table: "13" },
       { name: "陳泠君", table: "13" }, { name: "謝宗穎", table: "13" }, { name: "蔡瑞鳳", table: "13" },
       { name: "尤惠明", table: "13" }, { name: "蔡瑞龍", table: "13" }, { name: "南靜婷", table: "13" }, { name: "蔡宜臻", table: "13" },
       
       { name: "陳柏男", table: "14" }, { name: "黃淑娟", table: "14" }, { name: "陳羿妃(小孩)", table: "14" },
-      { name: "陳楷丞(小孩)", table: "14" }, { name: "蔡佾璋", table: "14" }, { name: "邱淑瑜", table: "14" },
-      { name: "蔡淑惠", table: "14" }, { name: "蔡春財", table: "14" }, { name: "許秀英", table: "14" },
+      { name: "陳楷丞(小孩)", table: "14" }, { name: "陳偉盛", table: "14" }, { name: "洪宜君", table: "14" }, { name: "陳姿妍(小孩)", table: "14" },
       
       { name: "黃耀增", table: "15" }, { name: "周彥岭", table: "15" }, { name: "張亦舒", table: "15" },
       { name: "楊佳欣", table: "15" }, { name: "魏巧宜", table: "15" }, { name: "張雅雪", table: "15" },
       { name: "張小妹", table: "15" }, { name: "林曉怡", table: "15" }, { name: "陳佩璇", table: "15" }, { name: "陳佩璇小孩", table: "15" },
       
-      { name: "陳澤山", table: "16" }, { name: "陳柏瑋", table: "16" }, { name: "陳宜歆", table: "16" },
-      { name: "陳煜棠(小孩)", table: "16" }, { name: "陳澤泰", table: "16" }, { name: "林素貞", table: "16" },
-      { name: "陳佳欣", table: "16" }, { name: "陳澤春", table: "16" },
+      { name: "陳澤山", table: "16" }, { name: "陳柏瑋", table: "16" }, { name: "陳澤泰", table: "16" },
+      { name: "林素貞", table: "16" }, { name: "陳佳欣", table: "16" }, { name: "蔡佾璋", table: "16" },
+      { name: "邱淑瑜", table: "16" }, { name: "蔡淑惠", table: "16" }, { name: "蔡春財", table: "16" }, { name: "許秀英", table: "16" },
       
       { name: "蔡淑娟", table: "17" }, { name: "吳民治", table: "17" }, { name: "吳品臻(小孩)", table: "17" },
       { name: "吳品曈(小孩)", table: "17" }, { name: "江麗華", table: "17" }, { name: "莉亞", table: "17" },
@@ -663,7 +661,6 @@
           if (matchedNode) matchedNode.classList.add("highlight");
 
           const customTableName = tableNames[item.table] || "";
-          // 調整部分：搜尋結果的標籤改為顯示「第 X 桌 - 桌名」
           const tableText = `第 ${item.table} 桌 - ${customTableName}`;
 
           const resDiv = document.createElement("div");
